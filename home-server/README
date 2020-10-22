@@ -1,1 +1,6 @@
-README for the home server codebase.
+README
+    directory: /homeServer
+    contents: the code for the home server subsystem of the smartsparks 2020 senior design project at the University of Kentucky.
+
+The subdirectory backend contains the files for the backend of the server.
+The subdirectory frontend contains the files for the frontend of the server. This consists of the GUI and the other Qt files necessary for it to work.

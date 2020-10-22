@@ -1,0 +1,7 @@
+#Initialize all that is necessary
+#Download?
+
+#Initialize mariadb database 
+echo Initializing the mariadb database...
+sudo mariadb < init.sql
+echo Complete!
