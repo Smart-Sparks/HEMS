@@ -7,9 +7,9 @@ GITHUB_BRANCH="central"
 GITHUB_FOLDER="home-server/home-backend"
 
 # Folder info
-BASE_FOLDER = "~/homeBackend"
-INPUT_FOLDER = "${BASE_FOLDER}/input"
-VENV_FOLDER = "${BASE_FOLDER}/venv"
+BASE_FOLDER="~/homeBackend"
+INPUT_FOLDER="${BASE_FOLDER}/input"
+VENV_FOLDER="${BASE_FOLDER}/venv"
 
 
 # update system
@@ -29,16 +29,16 @@ sudo pip3 install virtualenv
 sudo apt-get -y install python3-venv
 
 # creates directories
-mkdir $BASE_FOLDER
-mkdir $INPUT_FOLDER
+mkdir "${BASE_FOLDER}"
+mkdir "${INPUT_FOLDER}"
 
 # create python virtual environment for backend
-python3 -m venv $VENV_FOLDER
+python3 -m venv "${VENV_FOLDER}"
 
 # clone from github (may need work)
-cd $BASE_FOLDER
-git clone --depth 1 --filter=blob:none --branch $GITHUB_BRANCH --no-checkout $GITHUB_URL;
-git checkout $GITHUB_BRANCH -- $GITHUB_FOLDER
+cd "${BASE_FOLDER}"
+git clone --depth 1 --filter=blob:none --branch "${GITHUB_BRANCH}" --no-checkout "${GITHUB_URL}";
+git checkout "${GITHUB_BRANCH}" -- "${GITHUB_FOLDER}"
 #git clone https://github.com/Smart-Sparks/HEMS.git
 cd ~
 

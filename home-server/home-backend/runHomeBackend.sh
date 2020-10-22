@@ -8,9 +8,9 @@ GITHUB_BRANCH="central"
 GITHUB_FOLDER="home-server/home-backend"
 
 # Folder info
-BASE_FOLDER = "~/homeBackend"
-INPUT_FOLDER = "${BASE_FOLDER}/input"
-VENV_FOLDER = "${BASE_FOLDER}/venv"
+BASE_FOLDER="~/homeBackend"
+INPUT_FOLDER="${BASE_FOLDER}/input"
+VENV_FOLDER="${BASE_FOLDER}/venv"
 
 # Source virtualenv
 source "${VENV_FOLDER}/bin/activate"
