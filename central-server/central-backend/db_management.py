@@ -1,0 +1,129 @@
+#db_management.py
+
+# START IMPORTS
+import sqlite3
+import os
+import pandas
+import csv
+# END IMPORTS
+
+# START METHODS
+def database_to_csv(db):
+    db = 'D:\\Documents\\GitRepos\\central-server\\v2\\centralCode\\dbs\\data.db'
+    con = sqlite3.connect(db)
+    cur = con.cursor()
+    cur.execute('select * from usage_data')
+    with open('out.csv', 'w') as out:
+        writer = csv.writer(out, delimiter=',')
+        writer.writerow([i[0] for i in cur.description])
+        writer.writerows(cur)
+# END METHODS
+
+# START CLASSES
+# Database Manager: Organizational unit to handle the transfer of data into
+#                   a database from csv files.
+class DatabaseManager:
+    def __init__(self):
+        self._table_name = 'usage_data'
+        self._csv_folder = 'D:\\Documents\\GitRepos\\central-server\\v2\\centralCode\\downloaded_csvs'
+        self._database_file = 'D:\\Documents\\GitRepos\\central-server\\v2\\centralCode\\dbs\\data.db'
+        self._table_cols_list = ['data1', 'data2', 'data3', 'homeID', 'plugNumber', 'timestamp']
+        self._table_cols_str = ', '.join(self._table_cols_list)
+        self._table_col_types = ['REAL', 'REAL', 'REAL', 'INTEGER', 'INTEGER', 'TEXT']
+
+    # Periodically checks a local folder for any csv files
+    def transfer_csvs_to_db(self):
+        self.csv_folder_to_db(self._csv_folder, self._database_file)
+
+    # recursively searches folder for csv files and transfers them to database
+    def csv_folder_to_db(self, csvfolder, db):
+        files = os.listdir(csvfolder)
+        # print("checking csv folder: ", csvfolder)
+        for file in files:
+            # Get name of file
+            absfile = os.path.join(csvfolder, file)
+            ext = os.path.splitext(absfile)[1]
+            # If file is a csv, then transfer it to database
+            if ext == '.csv':
+                self.csvs_to_db([absfile], db)
+            # If file is a subfolder, then recursively call this function on that folder
+            elif os.path.isdir(absfile):
+                self.csv_folder_to_db(absfile, db)
+
+    # Takes list of csv file names and transfers them to a database
+    def csvs_to_db(self, csvfiles, db):
+        # For every csv file in the list of csv files
+        for csv in csvfiles:
+            # If the database exists, then put data from this file into the database
+            if self.check_db_exists(db):
+                print("db ", db, " exists")
+                rc = self.csv_to_db(csv, db)
+            # Otherwise, create the database before transferring data to it
+            else:
+                print("db ", db, " does not exist")
+                self.create_db(db)
+                rc = self.csv_to_db(csv, db)
+            if rc == 0:     # Successful csv to db, csv can be deleted
+                print("csv to db successful, deleting csv: ", csv)
+                try:
+                    os.remove(csv)
+                except WindowsError as e:
+                    print(e)
+            # If return code of csv_to_db was not 0, then there was a problem
+            else:
+                print("Problem dumping ", csv, " to ", db)
+
+    # Check if a path to certain database exists
+    def check_db_exists(self, db_path):
+        print("calling check_db_exists")
+        if os.path.exists(db_path):
+            return True
+        else:
+            return False
+
+    # Creates an empty database if one is not there, and sets up columns
+    def create_db(self, db_path):
+        print("calling create_db")
+        # Makes an empty db file
+        open(db_path, 'a').close()
+        # https://stackoverflow.com/questions/2887878/importing-a-csv-file-into-a
+        # -sqlite3-database-table-using-python
+        # Open database file
+        con = sqlite3.connect(db_path)
+        cur = con.cursor()
+        # Execute the instruction to create necessary table in database
+        make_table_instr = "CREATE TABLE {tab} ({cols});".format(tab=self._table_name, cols=self._table_cols_str)
+        cur.execute(make_table_instr)
+        con.commit()
+        con.close()
+
+    # Uses pandas to transfer csv data to specified database
+    def csv_to_db(self, csvfile, db_path):
+        print("calling csv_to_db")
+        # Checks if specified csv file exists at path
+        if os.path.exists(csvfile):
+            try:
+                # open database
+                con = sqlite3.connect(db_path)
+                # Read csv data into Pandas dataframe
+                df = pandas.read_csv(csvfile, names=self._table_cols_list)
+                # Remove the header row
+                df = df.drop([0])
+                # Make dict for dataframe to use for .to_sql
+                dtype = {self._table_cols_list[i]: self._table_col_types[i] for i in range(len(self._table_cols_list))}
+                # Append dataframe data to database
+                df.to_sql(self._table_name, con, if_exists='append', index=False, dtype=dtype)
+                con.commit()
+                con.close()
+                return 0
+            # Some errors could occur
+            except sqlite3.Error as e:
+                print("sqlite3 Error: ", e)
+                return -1
+            except OSError as e:
+                print("csv_to_db OSError: ", e)
+            except Exception as e:
+                print("csv_to_db error: ", e)
+        else:
+            return -1
+# END CLASSES
