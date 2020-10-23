@@ -1,6 +1,8 @@
 #Initialize all that is necessary
 #Download?
-
+sudo apt-get install mariadb-server
+sudo apt-get install python3-pip
+sudo pip3 install mariadb
 #Initialize mariadb database 
 echo Initializing the mariadb database...
 sudo mariadb < init.sql
