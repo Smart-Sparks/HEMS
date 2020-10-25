@@ -1,0 +1,5 @@
+
+CREATE TABLE IF NOT EXISTS 'homes' (
+	homeid INTEGER PRIMARY KEY,
+	folderid TEXT NOT NULL
+);

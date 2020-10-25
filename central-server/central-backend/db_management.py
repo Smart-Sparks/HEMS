@@ -19,17 +19,38 @@ def database_to_csv(db):
         writer.writerows(cur)
 # END METHODS
 
+# NOTES ON DATABASE LAYOUT:
+# 2 TABLES USED:
+#   'homes' table
+#       Numbers home servers and keeps track of their unique GoogleDrive folder ids
+#       homeid- int that increments
+#       folderid- unique GD folder id from home
+#   'data' table
+#       Holds all data from all home servers
+#       homeid- linked to specific home
+#       time- datetime gathered by home server
+#       irms- usage data
+#       pwr- usage data
+#       pf- usage data
+#       energy- usage data
+
+
+
 # START CLASSES
 # Database Manager: Organizational unit to handle the transfer of data into
 #                   a database from csv files.
 class DatabaseManager:
     def __init__(self):
-        self._table_name = 'usage_data'
+        self._table_name = 'data'
         self._csv_folder = 'D:\\Documents\\GitRepos\\central-server\\v2\\centralCode\\downloaded_csvs'
         self._database_file = 'D:\\Documents\\GitRepos\\central-server\\v2\\centralCode\\dbs\\data.db'
-        self._table_cols_list = ['data1', 'data2', 'data3', 'homeID', 'plugNumber', 'timestamp']
+        # self._table_cols_list = ['data1', 'data2', 'data3', 'homeID', 'plugNumber', 'timestamp']
+        # self._table_cols_str = ', '.join(self._table_cols_list)
+        # self._table_col_types = ['REAL', 'REAL', 'REAL', 'INTEGER', 'INTEGER', 'TEXT']
+
+        self._table_cols_list = ['homeid', 'time', 'irms', 'pwr', 'pf', 'energy']
         self._table_cols_str = ', '.join(self._table_cols_list)
-        self._table_col_types = ['REAL', 'REAL', 'REAL', 'INTEGER', 'INTEGER', 'TEXT']
+        self._table_col_types = ['INT', 'DATETIME', 'DOUBLE', 'DOUBLE', 'DOUBLE', 'DOUBLE']
 
     # Periodically checks a local folder for any csv files
     def transfer_csvs_to_db(self):
@@ -44,7 +65,7 @@ class DatabaseManager:
             absfile = os.path.join(csvfolder, file)
             ext = os.path.splitext(absfile)[1]
             # If file is a csv, then transfer it to database
-            if ext == '.csv':
+            if ext == '.tsv':
                 self.csvs_to_db([absfile], db)
             # If file is a subfolder, then recursively call this function on that folder
             elif os.path.isdir(absfile):
@@ -92,12 +113,21 @@ class DatabaseManager:
         con = sqlite3.connect(db_path)
         cur = con.cursor()
         # Execute the instruction to create necessary table in database
-        make_table_instr = "CREATE TABLE {tab} ({cols});".format(tab=self._table_name, cols=self._table_cols_str)
+
+        # OLD table creation
+        # make_table_instr = "CREATE TABLE {tab} ({cols});".format(tab=self._table_name, cols=self._table_cols_str)
+
+        # NEW table creation from script
+        make_table_instr = open("db_init_homes_table.sql", "r").read()
         cur.execute(make_table_instr)
+        make_table_instr = open("db_init_data_table.sql", "r").read()
+        cur.execute(make_table_instr)
+
         con.commit()
         con.close()
 
     # Uses pandas to transfer csv data to specified database
+    # Should also add corresponding home server entry to 'homes' if needed
     def csv_to_db(self, csvfile, db_path):
         print("calling csv_to_db")
         # Checks if specified csv file exists at path
@@ -105,14 +135,54 @@ class DatabaseManager:
             try:
                 # open database
                 con = sqlite3.connect(db_path)
-                # Read csv data into Pandas dataframe
-                df = pandas.read_csv(csvfile, names=self._table_cols_list)
+                cur = con.cursor()
+
+                # Checks if home server in 'homes' table
+                file = os.path.split(csvfile)[1]
+                filename = os.path.splitext(file)[0]
+                folder_id = filename.split("---")[1]
+                print("file is see in local folder: ", filename)
+                print("extracted folderid:", folder_id)
+                # Selects matching folder id from homes table if exists
+                t = (folder_id,)
+                cur.execute("SELECT * FROM homes WHERE folderid = ?", t)
+                matching_homes = cur.fetchall()
+                print(matching_homes)
+                # Add home with folder id if none in db
+                if len(matching_homes) == 0:
+                    print("add home")
+                    t = (folder_id, )
+                    cur.execute("INSERT INTO 'homes' (folderid) VALUES(?);", t)
+                cur.execute("SELECT * FROM homes WHERE folderid = ?", t)
+                matching_homes = cur.fetchall()
+                homeid = matching_homes[0][0]
+
+                # Places csv data into 'data' table
+                # Read csv data into Pandas dataframe (includes junk 'id' column)
+                df = pandas.read_csv(csvfile, names=self._table_cols_list, sep="\t")
+                # df = pandas.read_csv(csvfile, names=self._table_cols_list, usecols=range(1,len(self._table_cols_list)+1), sep="\t")
+
                 # Remove the header row
-                df = df.drop([0])
+                df = df.drop(labels=[0], axis=0)
+                # Fill homeid column with homeid
+                df['homeid'] = homeid
                 # Make dict for dataframe to use for .to_sql
-                dtype = {self._table_cols_list[i]: self._table_col_types[i] for i in range(len(self._table_cols_list))}
+                print(df)
+                dtype = {self._table_cols_list[i]: self._table_col_types[i] for i in range(len(self._table_col_types))}
                 # Append dataframe data to database
                 df.to_sql(self._table_name, con, if_exists='append', index=False, dtype=dtype)
+
+                # OLD STUFF
+                # Read csv data into Pandas dataframe
+                # df = pandas.read_csv(csvfile, names=self._table_cols_list)
+                # Remove the header row
+                # df = df.drop([0])
+                # Make dict for dataframe to use for .to_sql
+                # dtype = {self._table_cols_list[i]: self._table_col_types[i] for i in range(len(self._table_cols_list))}
+                # Append dataframe data to database
+                # df.to_sql(self._table_name, con, if_exists='append', index=False, dtype=dtype)
+
+
                 con.commit()
                 con.close()
                 return 0
