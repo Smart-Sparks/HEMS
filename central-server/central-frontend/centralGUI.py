@@ -4,10 +4,11 @@
 import tkinter as tk
 from tkinter import ttk
 
-from HomeRepresentation import Home, HomeList, GetAllHomeIDs
+from HomeRepresentation import Home, HomeList, GetAllHomeIDs, HomeTab
 import random
 import string
 import numpy as np
+import datetime
 
 import matplotlib.pyplot as plt
 # https://matplotlib.org/3.1.0/gallery/user_interfaces/embedding_in_tk_sgskip.html
@@ -24,11 +25,11 @@ class CentralGUI(tk.Frame):
 
     def __init__(self, master=None):
         super().__init__(master)
+        self.master.title("HEMS")
         self.database_file = 'D:\\Documents\\GitRepos\\central-server\\v2\\centralCode\\dbs\\data.db'
+        self.output_csv = "D:\\Documents\\GitRepos\\central-server\\v2\\centralCode\\testout.csv"
         # pack into master element
         self.pack()
-        # Create dict for {homeID: corresponding tabID}
-        # self.homeTabs = dict()
         # Create notebook for tabbed windows
         self.pages = ttk.Notebook(self)
         self.pages.pack(fill=tk.BOTH, expand=1)
@@ -83,50 +84,96 @@ class CentralGUI(tk.Frame):
     def OpenHomeTab(self, i):
         self.CreateHomeTab(i)
 
-    # Loads a certain number of home servers into the program as tabs
-    # If None is selected, then all will be loaded
-    # def PreloadHomeTabs(self, numTabs=None):
-    #     if numTabs is not None:
-    #         end = numTabs
-    #     else:
-    #         end = tk.END
-    #     for i, home in enumerate(self.homeServerListbox.get(0, end)):
-    #         t = self.CreateHomeTab(i)
-    #         self.pages.add(t, text=str(home.GetID()))
-    #         tabid = self.pages.select()
-    #         self.homeTabs[home.GetID()] = tabid
-            # self.pages.tab(self.pages.index(tabid))
-
 
     # Creates new tab to show home server information
     def CreateHomeTab(self, idx):
-        tab = tk.Frame()
+        # tab = tk.Frame()
         home = self.homeServerListbox.get(idx)[0]
 
-        # Create list of data related to specific home server
-        box = tk.Listbox(tab, selectmode=tk.SINGLE)
-        box.pack(fill=tk.Y, side=tk.LEFT, expand=0)
-        data = home.GetData()
-        for i in data[0:100]:
-            box.insert(tk.END, str(i))
-        # Create buttons
-        buttonframe = tk.Frame(tab)
-        export = tk.Button(buttonframe, text="Export Home Data", command=self.ExportHomeData)
-        close = tk.Button(buttonframe, text="Close Tab", command=self.CloseCurrentTab)
-        # export.bind("<Button-1>", self.ExportHomeData)
-        # close.bind("<Button-1>", self.CloseCurrentTab)
-        export.pack(side=tk.LEFT)
-        close.pack(side=tk.RIGHT)
-        buttonframe.pack(side=tk.TOP)
+        tab = HomeTab(home, self.pages)
 
-        # Embed analytics chart in tab
-        # self.EmbedChart(tab, data)
-        self.EmbedHomeDataChart(tab, home, min(home.GetNumDataPts(), 100))
+        # # Create list of data related to specific home server
+        # box = tk.Listbox(tab, selectmode=tk.SINGLE)
+        # box.pack(fill=tk.Y, side=tk.LEFT, expand=0)
+        # data = home.GetData() # pandas dataframe
+        # energy = home.GetEnergy()
+        # for i in energy[0:100]:
+        #     box.insert(tk.END, str(i))
+        # # Create buttons
+        # buttonframe = tk.Frame(tab)
+        # export = tk.Button(buttonframe, text="Export Home Data", command=self.ExportHomeData)
+        # close = tk.Button(buttonframe, text="Close Tab", command=self.CloseCurrentTab)
+        # # export.bind("<Button-1>", self.ExportHomeData)
+        # # close.bind("<Button-1>", self.CloseCurrentTab)
+        # export.pack(side=tk.LEFT)
+        # close.pack(side=tk.RIGHT)
+        # buttonframe.pack(side=tk.TOP)
+        #
+        # # Create date filters
+        # filterframe = tk.Frame(tab)
+        # filterbutton = tk.Button(filterframe, text="Filter")
+        # filterbutton.pack(side=tk.BOTTOM, fill=tk.X, expand=1)
+        #
+        # today=datetime.date.today()
+        # # Start date filters
+        # f = tk.Frame(filterframe)
+        # ysl = tk.Label(f, text="Start Year")
+        # ystart = tk.Entry(f, bd=2)
+        # ystart.insert(0, today.year)
+        # ysl.pack(side=tk.TOP)
+        # ystart.pack(side=tk.BOTTOM)
+        # f.pack(side=tk.RIGHT)
+        #
+        # f = tk.Frame(filterframe)
+        # msl = tk.Label(f, text="Start Month")
+        # mstart = tk.Entry(f, bd=2)
+        # mstart.insert(0, today.month)
+        # msl.pack(side=tk.TOP)
+        # mstart.pack(side=tk.BOTTOM)
+        # f.pack(side=tk.RIGHT)
+        #
+        # f = tk.Frame(filterframe)
+        # dsl = tk.Label(f, text="Start Day")
+        # dstart = tk.Entry(f, bd=2)
+        # dstart.insert(0, today.day)
+        # dsl.pack(side=tk.TOP)
+        # dstart.pack(side=tk.BOTTOM)
+        # f.pack(side=tk.RIGHT)
+        #
+        # f = tk.Frame(filterframe)
+        # yel = tk.Label(f, text="End Year")
+        # yend = tk.Entry(f, bd=2)
+        # yend.insert(0, today.year)
+        # yel.pack(side=tk.TOP)
+        # yend.pack(side=tk.BOTTOM)
+        # f.pack(side=tk.RIGHT)
+        #
+        # f = tk.Frame(filterframe)
+        # mel = tk.Label(f, text="End Month")
+        # mend = tk.Entry(f, bd=2)
+        # mend.insert(0, today.month)
+        # mel.pack(side=tk.TOP)
+        # mend.pack(side=tk.BOTTOM)
+        # f.pack(side=tk.RIGHT)
+        #
+        # f = tk.Frame(filterframe)
+        # dela = tk.Label(f, text="End Day")
+        # dend = tk.Entry(f, bd=2)
+        # dend.insert(0, today.day)
+        # dela.pack(side=tk.TOP)
+        # dend.pack(side=tk.BOTTOM)
+        # f.pack(side=tk.RIGHT)
+        #
+        # filterframe.pack(side=tk.BOTTOM)
+        #
+        # # Embed analytics chart in tab
+        # chart = self.EmbedHomeDataChart(tab, home, min(home.GetNumDataPts(), 100))
 
         # Add tab to notebook
         self.pages.add(tab, text=str(home.GetID()))
 
         # return tab
+        return tab
 
     # Forget the currently selected tab
     def CloseCurrentTab(self, e=None):
@@ -171,7 +218,7 @@ class CentralGUI(tk.Frame):
             ax = fig.add_subplot(223)
             ax.plot(t, energy[data_amount-numpts:], 'b')
             # ax.axes.yaxis.set_ticks([])
-            ax.axes.set_title("Power")
+            ax.axes.set_title("Energy")
             # IRMS
             ax = fig.add_subplot(224)
             ax.plot(t, irms[data_amount-numpts:], 'k')
@@ -181,19 +228,22 @@ class CentralGUI(tk.Frame):
             canvas = FigureCanvasTkAgg(fig, master=master)  # A tk.DrawingArea.
             canvas.draw()
             canvas.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
+            return canvas.get_tk_widget()
+        return None
 
 
     def ExportHomeData(self, e=None):
         # Get tab name
         id = self.pages.tab(self.pages.select(), "text")
         home = self.homeServerListbox.getByID(id)
+        home.GetData().to_csv(self.output_csv)
         print(home.GetData())
 
 
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.geometry("800x500")
+        self.geometry("1000x600")
         app = CentralGUI(master=self)
         app.pack()
 
