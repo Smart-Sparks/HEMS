@@ -1,6 +1,7 @@
 
 CREATE TABLE IF NOT EXISTS 'data' (
 	homeid INTEGER NOT NULL,
+	deviceid INTEGER NOT NULL,
 	time DATETIME NOT NULL,
     irms DOUBLE NOT NULL,
     pwr DOUBLE NOT NULL,

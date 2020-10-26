@@ -48,9 +48,9 @@ class DatabaseManager:
         # self._table_cols_str = ', '.join(self._table_cols_list)
         # self._table_col_types = ['REAL', 'REAL', 'REAL', 'INTEGER', 'INTEGER', 'TEXT']
 
-        self._table_cols_list = ['homeid', 'time', 'irms', 'pwr', 'pf', 'energy']
+        self._table_cols_list = ['deviceid', 'time', 'irms', 'pwr', 'pf', 'energy', 'homeid']
         self._table_cols_str = ', '.join(self._table_cols_list)
-        self._table_col_types = ['INT', 'DATETIME', 'DOUBLE', 'DOUBLE', 'DOUBLE', 'DOUBLE']
+        self._table_col_types = ['INT', 'DATETIME', 'DOUBLE', 'DOUBLE', 'DOUBLE', 'DOUBLE', 'INT']
 
     # Periodically checks a local folder for any csv files
     def transfer_csvs_to_db(self):

@@ -51,7 +51,7 @@ def GetAllHomeIDs(dbfile):
 # Home: Represents a home for organizing data based on home id
 class Home():
     def __init__(self, homeid, database):
-        self.datacols = ['homeid', 'time', 'irms', 'pwr', 'pf', 'energy']
+        self.datacols = ['homeid', 'deviceid', 'time', 'irms', 'pwr', 'pf', 'energy']
         self.id = homeid
         self.db = database
         self.data = None
@@ -62,6 +62,12 @@ class Home():
     # Changes the path to the database file
     def SetDatabaseFile(self, dbfile):
         self.db = dbfile
+
+    def GetData(self):
+        return self.data
+
+    def GetID(self):
+        return self.id
 
     def GetPower(self):
         return self.data['pwr']
@@ -94,8 +100,9 @@ class Home():
                 cur.execute("SELECT * FROM data WHERE homeid = ?", t)
                 self.data = cur.fetchall()
                 self.data = pandas.DataFrame(self.data, columns=self.datacols)
-                for row in cur.fetchall():
-                    print(row)
+                self.data['time'] = pandas.to_datetime(self.data['time'])
+                # self.data.set_index(['time'])
+                print(self.data.info())
                 con.close()
             except sqlite3.Error as e:
                 print("Home ReadData: sqlite3 Error: ", e)
@@ -107,15 +114,6 @@ class Home():
         else:
             return -1
 
-        # numDataPts = 300
-        # t = np.arange(0, 3, .01)
-        # self.data = 2 * np.sin(2 * np.pi * t) + np.random.rand(numDataPts)*0.1
-
-    def GetData(self):
-        return self.data
-
-    def GetID(self):
-        return self.id
 
 # It extends the Tkinter listbox to store representations of Home
 # Manages the listbox and corresponding Home objects
@@ -156,7 +154,7 @@ class HomeList(tk.Listbox):
 
 # This tab should be added to a ttk.Notebook widget
 # Pass in a ttk.Notebook as master
-class HomeTab(tk.Frame):
+class HomeNotebookTab(tk.Frame):
 
     def __init__(self, home, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -165,6 +163,7 @@ class HomeTab(tk.Frame):
         self.master = master
         self.home = home
         self.box = tk.Listbox(self, selectmode=tk.SINGLE)
+        self.canvas = None
         self.buttonframe = tk.Frame(self)
         # Create buttons
         self.export = tk.Button(self.buttonframe, text="Export Home Data",
@@ -172,7 +171,8 @@ class HomeTab(tk.Frame):
         self.close = tk.Button(self.buttonframe, text="Close Tab",
                           command=self.CloseThisTab)
         self.filterframe = tk.Frame(self)
-        self.filterbutton = tk.Button(self.filterframe, text="Filter")
+        self.filterbutton = tk.Button(self.filterframe, text="Filter",
+                                      command=self.Filter)
 
         self.SetupTab()
 
@@ -184,10 +184,34 @@ class HomeTab(tk.Frame):
         self.home.GetData().to_csv(self.output_csv)
         print(self.home.GetData())
 
+    def Filter(self):
+        try:
+            data = self.home.GetData()
+            start = datetime.datetime(int(self.ystart.get()),
+                                      int(self.mstart.get()),
+                                      int(self.dstart.get()))
+            end = datetime.datetime(int(self.yend.get()),
+                                      int(self.mend.get()),
+                                      int(self.dend.get()))
+            mask = (data['time'] >= start) & (data['time'] <= end)
+            print("start:", start, ", end:", end)
+            datasubset = data.loc[mask]
+            datasubset = datasubset.sort_values(by=['time'])
+            print(datasubset)
+            self.chart = self.EmbedHomeDataChart(self, self.home, numpts=100, data=datasubset)
+        except ValueError:
+            pass
+
+
+    # Takes in a dataframe with set of data and returns dataframe where
+    # all points with equvalent datetime values are averaged
+    def AverageDataOnSameTime(self, data):
+        pass
+
+
     def SetupTab(self):
         # Create list of data related to specific home server
         self.box.pack(fill=tk.Y, side=tk.LEFT, expand=0)
-        data = self.home.GetData()  # pandas dataframe
         energy = self.home.GetEnergy()
         for i in energy[0:100]:
             self.box.insert(tk.END, str(i))
@@ -199,75 +223,89 @@ class HomeTab(tk.Frame):
         self.buttonframe.pack(side=tk.TOP)
 
         # Create date filters
-
-
         self.filterbutton.pack(side=tk.BOTTOM, fill=tk.X, expand=1)
 
         today = datetime.date.today()
         # Start date filters
         f = tk.Frame(self.filterframe)
-        ysl = tk.Label(f, text="Start Year")
-        ystart = tk.Entry(f, bd=2)
-        ystart.insert(0, today.year)
-        ysl.pack(side=tk.TOP)
-        ystart.pack(side=tk.BOTTOM)
-        f.pack(side=tk.RIGHT)
-
-        f = tk.Frame(self.filterframe)
-        msl = tk.Label(f, text="Start Month")
-        mstart = tk.Entry(f, bd=2)
-        mstart.insert(0, today.month)
-        msl.pack(side=tk.TOP)
-        mstart.pack(side=tk.BOTTOM)
-        f.pack(side=tk.RIGHT)
-
-        f = tk.Frame(self.filterframe)
-        dsl = tk.Label(f, text="Start Day")
-        dstart = tk.Entry(f, bd=2)
-        dstart.insert(0, today.day)
-        dsl.pack(side=tk.TOP)
-        dstart.pack(side=tk.BOTTOM)
-        f.pack(side=tk.RIGHT)
-
-        f = tk.Frame(self.filterframe)
         yel = tk.Label(f, text="End Year")
-        yend = tk.Entry(f, bd=2)
-        yend.insert(0, today.year)
+        self.yend = tk.Entry(f, bd=2)
+        self.yend.insert(0, today.year)
         yel.pack(side=tk.TOP)
-        yend.pack(side=tk.BOTTOM)
+        self.yend.pack(side=tk.BOTTOM)
         f.pack(side=tk.RIGHT)
 
         f = tk.Frame(self.filterframe)
         mel = tk.Label(f, text="End Month")
-        mend = tk.Entry(f, bd=2)
-        mend.insert(0, today.month)
+        self.mend = tk.Entry(f, bd=2)
+        self.mend.insert(0, today.month)
         mel.pack(side=tk.TOP)
-        mend.pack(side=tk.BOTTOM)
+        self.mend.pack(side=tk.BOTTOM)
         f.pack(side=tk.RIGHT)
 
         f = tk.Frame(self.filterframe)
         dela = tk.Label(f, text="End Day")
-        dend = tk.Entry(f, bd=2)
-        dend.insert(0, today.day)
+        self.dend = tk.Entry(f, bd=2)
+        self.dend.insert(0, today.day)
         dela.pack(side=tk.TOP)
-        dend.pack(side=tk.BOTTOM)
+        self.dend.pack(side=tk.BOTTOM)
+        f.pack(side=tk.RIGHT)
+
+        l = tk.Label(self.filterframe, text="---->\n---->")
+        l.pack(side=tk.RIGHT)
+
+        f = tk.Frame(self.filterframe)
+        ysl = tk.Label(f, text="Start Year")
+        self.ystart = tk.Entry(f, bd=2)
+        self.ystart.insert(0, today.year)
+        ysl.pack(side=tk.TOP)
+        self.ystart.pack(side=tk.BOTTOM)
+        f.pack(side=tk.RIGHT)
+
+        f = tk.Frame(self.filterframe)
+        msl = tk.Label(f, text="Start Month")
+        self.mstart = tk.Entry(f, bd=2)
+        self.mstart.insert(0, today.month)
+        msl.pack(side=tk.TOP)
+        self.mstart.pack(side=tk.BOTTOM)
+        f.pack(side=tk.RIGHT)
+
+        f = tk.Frame(self.filterframe)
+        dsl = tk.Label(f, text="Start Day")
+        self.dstart = tk.Entry(f, bd=2)
+        self.dstart.insert(0, today.day)
+        dsl.pack(side=tk.TOP)
+        self.dstart.pack(side=tk.BOTTOM)
         f.pack(side=tk.RIGHT)
 
         self.filterframe.pack(side=tk.BOTTOM)
 
         # Embed analytics chart in tab
-        self.chart = self.EmbedHomeDataChart(self, self.home,
-                                        min(self.home.GetNumDataPts(), 100))
+        self.chart = self.EmbedHomeDataChart(self,
+                                             self.home,
+                                             numpts=min(self.home.GetNumDataPts(), 100))
 
     # Creates and embeds a figure displaying data for specific home server
-    def EmbedHomeDataChart(self, master, home, numpts=5):
-        power = home.GetPower()
-        irms = home.GetIRMS()
-        energy = home.GetEnergy()
-        powerfactor = home.GetPowerFactor()
-        data_amount = home.GetNumDataPts()
+    def EmbedHomeDataChart(self, master, home, numpts=5, data=None):
+        if data is None:
+            power = home.GetPower()
+            irms = home.GetIRMS()
+            energy = home.GetEnergy()
+            powerfactor = home.GetPowerFactor()
+            data_amount = home.GetNumDataPts()
+        else:
+            power = data['pwr']
+            irms = data['irms']
+            energy = data['energy']
+            powerfactor = data['pf']
+            data_amount = data.shape[0]
 
-        if numpts > 0 and numpts <= data_amount:
+
+        if self.canvas is not None:
+            self.canvas.get_tk_widget().destroy()
+        if data_amount > 0:
+            if data_amount <= numpts:
+                numpts = data_amount
             fig = Figure(figsize=(5, 4), dpi=100)
             t = range(numpts)
             # Power
@@ -291,10 +329,7 @@ class HomeTab(tk.Frame):
             # ax.axes.yaxis.set_ticks([])
             ax.axes.set_title("IRMS")
 
-            canvas = FigureCanvasTkAgg(fig, master=master)  # A tk.DrawingArea.
-            canvas.draw()
-            canvas.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
-            return canvas.get_tk_widget()
-
-        return None
+            self.canvas = FigureCanvasTkAgg(fig, master=master)  # A tk.DrawingArea.
+            self.canvas.draw()
+            self.canvas.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
 # END CLASSES

@@ -4,7 +4,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from HomeRepresentation import Home, HomeList, GetAllHomeIDs, HomeTab
+from HomeRepresentation import Home, HomeList, GetAllHomeIDs, HomeNotebookTab
 import random
 import string
 import numpy as np
@@ -53,13 +53,13 @@ class CentralGUI(tk.Frame):
         home_ids = GetAllHomeIDs(self.database_file)
         print(home_ids)
         # Insert representations for each home into the listbox
-        for id in home_ids:
-            # s is temporary substitute for Home IDs
-            # s = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
-            home = Home(str(id), self.database_file)
-            home.ReadData()
-            self.homeServerListbox.insert(tk.END, home)
-        #self.PreloadHomeTabs(0)
+        if home_ids is not None:
+            for id in home_ids:
+                # s is temporary substitute for Home IDs
+                # s = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+                home = Home(str(id), self.database_file)
+                home.ReadData()
+                self.homeServerListbox.insert(tk.END, home)
         # Open tab for home server on double click
         self.homeServerListbox.bind("<Double-Button-1>", self.onHomeSelect)
         # Embed analytics chart in main tab
@@ -89,86 +89,7 @@ class CentralGUI(tk.Frame):
     def CreateHomeTab(self, idx):
         # tab = tk.Frame()
         home = self.homeServerListbox.get(idx)[0]
-
-        tab = HomeTab(home, self.pages)
-
-        # # Create list of data related to specific home server
-        # box = tk.Listbox(tab, selectmode=tk.SINGLE)
-        # box.pack(fill=tk.Y, side=tk.LEFT, expand=0)
-        # data = home.GetData() # pandas dataframe
-        # energy = home.GetEnergy()
-        # for i in energy[0:100]:
-        #     box.insert(tk.END, str(i))
-        # # Create buttons
-        # buttonframe = tk.Frame(tab)
-        # export = tk.Button(buttonframe, text="Export Home Data", command=self.ExportHomeData)
-        # close = tk.Button(buttonframe, text="Close Tab", command=self.CloseCurrentTab)
-        # # export.bind("<Button-1>", self.ExportHomeData)
-        # # close.bind("<Button-1>", self.CloseCurrentTab)
-        # export.pack(side=tk.LEFT)
-        # close.pack(side=tk.RIGHT)
-        # buttonframe.pack(side=tk.TOP)
-        #
-        # # Create date filters
-        # filterframe = tk.Frame(tab)
-        # filterbutton = tk.Button(filterframe, text="Filter")
-        # filterbutton.pack(side=tk.BOTTOM, fill=tk.X, expand=1)
-        #
-        # today=datetime.date.today()
-        # # Start date filters
-        # f = tk.Frame(filterframe)
-        # ysl = tk.Label(f, text="Start Year")
-        # ystart = tk.Entry(f, bd=2)
-        # ystart.insert(0, today.year)
-        # ysl.pack(side=tk.TOP)
-        # ystart.pack(side=tk.BOTTOM)
-        # f.pack(side=tk.RIGHT)
-        #
-        # f = tk.Frame(filterframe)
-        # msl = tk.Label(f, text="Start Month")
-        # mstart = tk.Entry(f, bd=2)
-        # mstart.insert(0, today.month)
-        # msl.pack(side=tk.TOP)
-        # mstart.pack(side=tk.BOTTOM)
-        # f.pack(side=tk.RIGHT)
-        #
-        # f = tk.Frame(filterframe)
-        # dsl = tk.Label(f, text="Start Day")
-        # dstart = tk.Entry(f, bd=2)
-        # dstart.insert(0, today.day)
-        # dsl.pack(side=tk.TOP)
-        # dstart.pack(side=tk.BOTTOM)
-        # f.pack(side=tk.RIGHT)
-        #
-        # f = tk.Frame(filterframe)
-        # yel = tk.Label(f, text="End Year")
-        # yend = tk.Entry(f, bd=2)
-        # yend.insert(0, today.year)
-        # yel.pack(side=tk.TOP)
-        # yend.pack(side=tk.BOTTOM)
-        # f.pack(side=tk.RIGHT)
-        #
-        # f = tk.Frame(filterframe)
-        # mel = tk.Label(f, text="End Month")
-        # mend = tk.Entry(f, bd=2)
-        # mend.insert(0, today.month)
-        # mel.pack(side=tk.TOP)
-        # mend.pack(side=tk.BOTTOM)
-        # f.pack(side=tk.RIGHT)
-        #
-        # f = tk.Frame(filterframe)
-        # dela = tk.Label(f, text="End Day")
-        # dend = tk.Entry(f, bd=2)
-        # dend.insert(0, today.day)
-        # dela.pack(side=tk.TOP)
-        # dend.pack(side=tk.BOTTOM)
-        # f.pack(side=tk.RIGHT)
-        #
-        # filterframe.pack(side=tk.BOTTOM)
-        #
-        # # Embed analytics chart in tab
-        # chart = self.EmbedHomeDataChart(tab, home, min(home.GetNumDataPts(), 100))
-
+        tab = HomeNotebookTab(home, self.pages)
         # Add tab to notebook
         self.pages.add(tab, text=str(home.GetID()))
 
