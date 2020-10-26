@@ -4,7 +4,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from HomeRepresentation import Home, HomeList
+from HomeRepresentation import Home, HomeList, GetAllHomeIDs
 import random
 import string
 import numpy as np
@@ -49,11 +49,13 @@ class CentralGUI(tk.Frame):
         # ***********************************************************
         # *** RETRIEVE LIST OF UNIQUE HOME IDs FROM DATABASE HERE ***
         # ***********************************************************
+        home_ids = GetAllHomeIDs(self.database_file)
+        print(home_ids)
         # Insert representations for each home into the listbox
-        for i in range(5):
+        for id in home_ids:
             # s is temporary substitute for Home IDs
-            s = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
-            home = Home(s, self.database_file)
+            # s = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
+            home = Home(str(id), self.database_file)
             home.ReadData()
             self.homeServerListbox.insert(tk.END, home)
         #self.PreloadHomeTabs(0)
@@ -116,8 +118,10 @@ class CentralGUI(tk.Frame):
         export.pack(side=tk.LEFT)
         close.pack(side=tk.RIGHT)
         buttonframe.pack(side=tk.TOP)
-        # Embed analytics chart in main tab
-        self.EmbedChart(tab, data)
+
+        # Embed analytics chart in tab
+        # self.EmbedChart(tab, data)
+        self.EmbedHomeDataChart(tab, home, min(home.GetNumDataPts(), 100))
 
         # Add tab to notebook
         self.pages.add(tab, text=str(home.GetID()))
@@ -141,6 +145,43 @@ class CentralGUI(tk.Frame):
         canvas = FigureCanvasTkAgg(fig, master=master)  # A tk.DrawingArea.
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
+
+    # Creates and embeds a figure displaying data for specific home server
+    def EmbedHomeDataChart(self, master, home, numpts=5):
+        power = home.GetPower()
+        irms = home.GetIRMS()
+        energy = home.GetEnergy()
+        powerfactor = home.GetPowerFactor()
+        data_amount = home.GetNumDataPts()
+
+        if numpts > 0 and numpts <= data_amount:
+            fig = Figure(figsize=(5, 4), dpi=100)
+            t = range(numpts)
+            # Power
+            ax = fig.add_subplot(221)
+            ax.plot(t, power[data_amount-numpts:], 'r')
+            # ax.axes.yaxis.set_ticks([])
+            ax.axes.set_title("Power")
+            # Power Factor
+            ax = fig.add_subplot(222)
+            ax.plot(t, powerfactor[data_amount-numpts:], 'y')
+            # ax.axes.yaxis.set_ticks([])
+            ax.axes.set_title("Power Factor")
+            # Energy
+            ax = fig.add_subplot(223)
+            ax.plot(t, energy[data_amount-numpts:], 'b')
+            # ax.axes.yaxis.set_ticks([])
+            ax.axes.set_title("Power")
+            # IRMS
+            ax = fig.add_subplot(224)
+            ax.plot(t, irms[data_amount-numpts:], 'k')
+            # ax.axes.yaxis.set_ticks([])
+            ax.axes.set_title("IRMS")
+
+            canvas = FigureCanvasTkAgg(fig, master=master)  # A tk.DrawingArea.
+            canvas.draw()
+            canvas.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
+
 
     def ExportHomeData(self, e=None):
         # Get tab name

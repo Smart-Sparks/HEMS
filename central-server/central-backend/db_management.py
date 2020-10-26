@@ -151,7 +151,6 @@ class DatabaseManager:
                 # Add home with folder id if none in db
                 if len(matching_homes) == 0:
                     print("add home")
-                    t = (folder_id, )
                     cur.execute("INSERT INTO 'homes' (folderid) VALUES(?);", t)
                 cur.execute("SELECT * FROM homes WHERE folderid = ?", t)
                 matching_homes = cur.fetchall()
