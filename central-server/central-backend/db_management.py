@@ -164,30 +164,19 @@ class DatabaseManager:
 
                 # Places csv data into 'data' or 'temp' table
                 if (self.isUsageDataFile(filename)):
-                    # Read csv data into Pandas dataframe
-                    df = pandas.read_csv(csvfile, names=self._data_cols_list, sep="\t")
-                    # Remove the header row
-                    df = df.drop(labels=[0], axis=0)
-                    # Fill homeid column with homeid
-                    df['homeid'] = homeid
-                    # Make dict for dataframe to use for .to_sql
-                    print(df)
-                    dtype = {self._data_cols_list[i]: self._data_col_types[i] for i in range(len(self._data_col_types))}
-                    # Append dataframe data to database
-                    df.to_sql(self._data_table_name, con, if_exists='append', index=False, dtype=dtype)
+                    self.csvToDatabaseByDataframe(csvfile,
+                                                  self._data_table_name,
+                                                  self._data_cols_list,
+                                                  self._data_col_types,
+                                                  homeid,
+                                                  con)
                 elif (self.isTempDataFile(filename)):
-                    # Read csv data into Pandas dataframe
-                    df = pandas.read_csv(csvfile, names=self._temp_cols_list, sep="\t")
-                    # Remove the header row
-                    df = df.drop(labels=[0], axis=0)
-                    # Fill homeid column with homeid
-                    df['homeid'] = homeid
-                    # Make dict for dataframe to use for .to_sql
-                    print(df)
-                    dtype = {self._temp_cols_list[i]: self._temp_col_types[i] for i in range(len(self._temp_col_types))}
-                    # Append dataframe data to database
-                    df.to_sql(self._temp_table_name, con, if_exists='append', index=False, dtype=dtype)
-
+                    self.csvToDatabaseByDataframe(csvfile,
+                                                  self._temp_table_name,
+                                                  self._temp_cols_list,
+                                                  self._temp_col_types,
+                                                  homeid,
+                                                  con)
 
                 con.commit()
                 con.close()
@@ -203,9 +192,22 @@ class DatabaseManager:
         else:
             return -1
 
+    def csvToDatabaseByDataframe(self, csvfile, table_name, col_list, col_types, homeid, sqlcon):
+        # Read csv data into Pandas dataframe
+        df = pandas.read_csv(csvfile, names=col_list, sep="\t")
+        # Remove the header row
+        df = df.drop(labels=[0], axis=0)
+        # Fill homeid column with homeid
+        df['homeid'] = homeid
+        # Make dict for dataframe to use for .to_sql
+        print(df)
+        dtype = {col_list[i]: col_types[i] for i in range(len(col_types))}
+        # Append dataframe data to database
+        df.to_sql(table_name, sqlcon, if_exists='append', index=False, dtype=dtype)
+
     def isUsageDataFile(self, filename):
-        return False
+        return filename.startswith("energy")
 
     def isTempDataFile(self, filename):
-        return True
+        return filename.startswith("temperature")
 # END CLASSES
