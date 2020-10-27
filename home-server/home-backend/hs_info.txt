@@ -1,0 +1,5 @@
+[home server]
+id = -1
+# input folder is relative to user home
+input = homeBackend/input/
+token = tempconfig.json
