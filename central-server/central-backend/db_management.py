@@ -41,16 +41,20 @@ def database_to_csv(db):
 #                   a database from csv files.
 class DatabaseManager:
     def __init__(self):
-        self._table_name = 'data'
+        self._data_table_name = 'data'
+        self._temp_table_name = 'temp'
         self._csv_folder = 'D:\\Documents\\GitRepos\\central-server\\v2\\centralCode\\downloaded_csvs'
         self._database_file = 'D:\\Documents\\GitRepos\\central-server\\v2\\centralCode\\dbs\\data.db'
-        # self._table_cols_list = ['data1', 'data2', 'data3', 'homeID', 'plugNumber', 'timestamp']
-        # self._table_cols_str = ', '.join(self._table_cols_list)
-        # self._table_col_types = ['REAL', 'REAL', 'REAL', 'INTEGER', 'INTEGER', 'TEXT']
 
-        self._table_cols_list = ['deviceid', 'time', 'irms', 'pwr', 'pf', 'energy', 'homeid']
-        self._table_cols_str = ', '.join(self._table_cols_list)
-        self._table_col_types = ['INT', 'DATETIME', 'DOUBLE', 'DOUBLE', 'DOUBLE', 'DOUBLE', 'INT']
+        self._data_cols_list = ['deviceid', 'time', 'irms', 'pwr', 'pf', 'energy', 'homeid']
+        # self._data_cols_str = ', '.join(self._data_cols_list)
+        self._data_col_types = ['INT', 'DATETIME', 'DOUBLE', 'DOUBLE', 'DOUBLE', 'DOUBLE', 'INT']
+
+        self._temp_cols_list = ['deviceid', 'time', 'temperature', 'homeid']
+        # self._temp_cols_str = ', '.join(self._temp_cols_list)
+        self._temp_col_types = ['INT', 'DATETIME', 'DOUBLE', 'INT']
+
+
 
     # Periodically checks a local folder for any csv files
     def transfer_csvs_to_db(self):
@@ -122,6 +126,8 @@ class DatabaseManager:
         cur.execute(make_table_instr)
         make_table_instr = open("db_init_data_table.sql", "r").read()
         cur.execute(make_table_instr)
+        make_table_instr = open("db_init_temp_table.sql", "r").read()
+        cur.execute(make_table_instr)
 
         con.commit()
         con.close()
@@ -156,30 +162,31 @@ class DatabaseManager:
                 matching_homes = cur.fetchall()
                 homeid = matching_homes[0][0]
 
-                # Places csv data into 'data' table
-                # Read csv data into Pandas dataframe (includes junk 'id' column)
-                df = pandas.read_csv(csvfile, names=self._table_cols_list, sep="\t")
-                # df = pandas.read_csv(csvfile, names=self._table_cols_list, usecols=range(1,len(self._table_cols_list)+1), sep="\t")
-
-                # Remove the header row
-                df = df.drop(labels=[0], axis=0)
-                # Fill homeid column with homeid
-                df['homeid'] = homeid
-                # Make dict for dataframe to use for .to_sql
-                print(df)
-                dtype = {self._table_cols_list[i]: self._table_col_types[i] for i in range(len(self._table_col_types))}
-                # Append dataframe data to database
-                df.to_sql(self._table_name, con, if_exists='append', index=False, dtype=dtype)
-
-                # OLD STUFF
-                # Read csv data into Pandas dataframe
-                # df = pandas.read_csv(csvfile, names=self._table_cols_list)
-                # Remove the header row
-                # df = df.drop([0])
-                # Make dict for dataframe to use for .to_sql
-                # dtype = {self._table_cols_list[i]: self._table_col_types[i] for i in range(len(self._table_cols_list))}
-                # Append dataframe data to database
-                # df.to_sql(self._table_name, con, if_exists='append', index=False, dtype=dtype)
+                # Places csv data into 'data' or 'temp' table
+                if (self.isUsageDataFile(filename)):
+                    # Read csv data into Pandas dataframe
+                    df = pandas.read_csv(csvfile, names=self._data_cols_list, sep="\t")
+                    # Remove the header row
+                    df = df.drop(labels=[0], axis=0)
+                    # Fill homeid column with homeid
+                    df['homeid'] = homeid
+                    # Make dict for dataframe to use for .to_sql
+                    print(df)
+                    dtype = {self._data_cols_list[i]: self._data_col_types[i] for i in range(len(self._data_col_types))}
+                    # Append dataframe data to database
+                    df.to_sql(self._data_table_name, con, if_exists='append', index=False, dtype=dtype)
+                elif (self.isTempDataFile(filename)):
+                    # Read csv data into Pandas dataframe
+                    df = pandas.read_csv(csvfile, names=self._temp_cols_list, sep="\t")
+                    # Remove the header row
+                    df = df.drop(labels=[0], axis=0)
+                    # Fill homeid column with homeid
+                    df['homeid'] = homeid
+                    # Make dict for dataframe to use for .to_sql
+                    print(df)
+                    dtype = {self._temp_cols_list[i]: self._temp_col_types[i] for i in range(len(self._temp_col_types))}
+                    # Append dataframe data to database
+                    df.to_sql(self._temp_table_name, con, if_exists='append', index=False, dtype=dtype)
 
 
                 con.commit()
@@ -187,7 +194,7 @@ class DatabaseManager:
                 return 0
             # Some errors could occur
             except sqlite3.Error as e:
-                print("sqlite3 Error: ", e)
+                print("csv_to_db sqlite3 Error: ", e)
                 return -1
             except OSError as e:
                 print("csv_to_db OSError: ", e)
@@ -195,4 +202,10 @@ class DatabaseManager:
                 print("csv_to_db error: ", e)
         else:
             return -1
+
+    def isUsageDataFile(self, filename):
+        return False
+
+    def isTempDataFile(self, filename):
+        return True
 # END CLASSES
