@@ -55,9 +55,8 @@ class CentralGUI(tk.Frame):
         # Insert representations for each home into the listbox
         if home_ids is not None:
             for id in home_ids:
-                # s is temporary substitute for Home IDs
-                # s = ''.join(random.choice(string.ascii_lowercase) for i in range(10))
                 home = Home(str(id), self.database_file)
+                # Load data from database
                 home.ReadData()
                 self.homeServerListbox.insert(tk.END, home)
         # Open tab for home server on double click
@@ -87,7 +86,6 @@ class CentralGUI(tk.Frame):
 
     # Creates new tab to show home server information
     def CreateHomeTab(self, idx):
-        # tab = tk.Frame()
         home = self.homeServerListbox.get(idx)[0]
         tab = HomeNotebookTab(home, self.pages)
         # Add tab to notebook

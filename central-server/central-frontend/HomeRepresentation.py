@@ -52,9 +52,11 @@ def GetAllHomeIDs(dbfile):
 class Home():
     def __init__(self, homeid, database):
         self.datacols = ['homeid', 'deviceid', 'time', 'irms', 'pwr', 'pf', 'energy']
+        self.tempcols = ['homeid', 'deviceid', 'time', 'temperature']
         self.id = homeid
         self.db = database
         self.data = None
+        self.temp = None
 
     def __str__(self):
         return self.id
@@ -63,6 +65,7 @@ class Home():
     def SetDatabaseFile(self, dbfile):
         self.db = dbfile
 
+    # Usage data
     def GetData(self):
         return self.data
 
@@ -84,6 +87,13 @@ class Home():
     def GetNumDataPts(self):
         return self.data.shape[0]
 
+    # Temperature data
+    def GetTemperature(self):
+        return self.temp['temperature']
+
+    def GetNumTempPts(self):
+        return self.temp.shape[0]
+
     # Reads the data from selected database file that relates to this home server
     def ReadData(self, dbfile=None):
         # Can either pass in database file or use Home's database file
@@ -95,14 +105,18 @@ class Home():
                 # Open connection with SQLite db
                 con = sqlite3.connect(dbfile)
                 cur = con.cursor()
-                # Selects all data from the "usage_data" table
+                # "data" table data
                 t = (self.id)
                 cur.execute("SELECT * FROM data WHERE homeid = ?", t)
                 self.data = cur.fetchall()
                 self.data = pandas.DataFrame(self.data, columns=self.datacols)
                 self.data['time'] = pandas.to_datetime(self.data['time'])
-                # self.data.set_index(['time'])
-                print(self.data.info())
+                # "temp" table data
+                cur.execute("SELECT * FROM temp WHERE homeid = ?", t)
+                self.temp = cur.fetchall()
+                self.temp = pandas.DataFrame(self.temp, columns=self.tempcols)
+                self.temp['time'] = pandas.to_datetime(self.temp['time'])
+                # print(self.temp.info())
                 con.close()
             except sqlite3.Error as e:
                 print("Home ReadData: sqlite3 Error: ", e)
@@ -193,9 +207,9 @@ class HomeNotebookTab(tk.Frame):
             end = datetime.datetime(int(self.yend.get()),
                                       int(self.mend.get()),
                                       int(self.dend.get()))
-            mask = (data['time'] >= start) & (data['time'] <= end)
+            datamask = (data['time'] >= start) & (data['time'] <= end)
             print("start:", start, ", end:", end)
-            datasubset = data.loc[mask]
+            datasubset = data.loc[datamask]
             datasubset = datasubset.sort_values(by=['time'])
             print(datasubset)
             self.chart = self.EmbedHomeDataChart(self, self.home, numpts=100, data=datasubset)
