@@ -177,6 +177,8 @@ class DatabaseManager:
                                                   self._temp_col_types,
                                                   homeid,
                                                   con)
+                else:
+                    print(filename, " did not match usage pattern \"energy\" nor temperature pattern \"temperature\"")
 
                 con.commit()
                 con.close()
