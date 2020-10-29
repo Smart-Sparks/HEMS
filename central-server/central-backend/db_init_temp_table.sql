@@ -1,0 +1,11 @@
+
+CREATE TABLE IF NOT EXISTS 'temp' (
+	homeid INTEGER NOT NULL,
+	deviceid INTEGER NOT NULL,
+	time DATETIME NOT NULL,
+    temperature DOUBLE NOT NULL,
+	FOREIGN KEY (homeid)
+		REFERENCES 'homes' (homeid)
+			ON DELETE CASCADE
+			ON UPDATE CASCADE
+);

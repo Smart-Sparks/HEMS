@@ -1,0 +1,6 @@
+
+client_config_file: credentials.json
+
+save_credentials: True
+save_credentials_backend: file
+save_credentials_file: tempconfig.json
