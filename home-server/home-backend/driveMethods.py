@@ -38,7 +38,7 @@ def upload_csv_to_drive(drive, csv_path):
 # returns 0 on successfule upload, -1 if problem
 def upload_csv_to_drive_folder(drive, csv_path, folder_id):
     try:
-        file1 = drive.CreateFile({'title': 'data.csv', 'parents': [{"id": folder_id}]})
+        file1 = drive.CreateFile({'title': 'energy.tsv', 'parents': [{"id": folder_id}]})
         file1.SetContentFile(csv_path)
         file1.Upload()
         return 0
