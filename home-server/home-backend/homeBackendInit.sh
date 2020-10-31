@@ -50,4 +50,9 @@ eval source "${VENV_FOLDER}/bin/activate"
 
 # download/install pip dependencies
 eval pip3 install -r "${BASE_FOLDER}/${GITHUB_REPO}/${GITHUB_FOLDER}/requirementsHome.txt"
-#pip3 install -r ~/homeBackend/central-server/v2/centralCode/requirementsHome.txt
+
+# run script to get home server info for Google Drive
+eval cd "${BASE_FOLDER}/${GITHUB_REPO}/${GITHUB_FOLDER}/"
+eval python3 home_server_init.py
+
+
