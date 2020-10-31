@@ -5,7 +5,7 @@
 # GitHub Info
 GITHUB_URL="https://github.com/Smart-Sparks/HEMS.git"
 GITHUB_REPO="HEMS"
-GITHUB_BRANCH="central"
+GITHUB_BRANCH="main"
 GITHUB_FOLDER="home-server/home-backend"
 
 # Folder info
