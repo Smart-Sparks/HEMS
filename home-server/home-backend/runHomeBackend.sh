@@ -18,5 +18,6 @@ eval source "${VENV_FOLDER}/bin/activate"
 #source ~/homeBackend/venv/bin/activate
 
 # Run home_server.py backend program
-eval python3 "${BASE_FOLDER}/${GITHUB_REPO}/${GITHUB_FOLDER}/home_server.py"
+eval cd "${BASE_FOLDER}/${GITHUB_REPO}/${GITHUB_FOLDER}"
+eval python3 "home_server.py"
 #python3 ~/homeBackend/central-server/v2/centralCode/home_server.py
