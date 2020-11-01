@@ -7,6 +7,7 @@ from tkinter import ttk
 
 import numpy as np
 
+from copy import deepcopy
 import sqlite3
 import os
 import datetime
@@ -135,7 +136,6 @@ class Home():
             dbfile = self.db
         # Make sure database exists
         if os.path.exists(dbfile):
-            print("hello2")
             try:
                 # Open connection with SQLite db
                 con = sqlite3.connect(dbfile)
@@ -151,7 +151,7 @@ class Home():
                 self.data = pandas.DataFrame(self.data, columns=self.datacols)
                 self.data['time'] = pandas.to_datetime(self.data['time'])
                 # "temp" table data
-                cur.execute("SELECT * FROM data WHERE homeid = ? AND time BETWEEN DATETIME(?) AND DATETIME(?)", t)
+                cur.execute("SELECT * FROM temp WHERE homeid = ? AND time BETWEEN DATETIME(?) AND DATETIME(?)", t)
                 self.temp = cur.fetchall()
                 self.temp = pandas.DataFrame(self.temp, columns=self.tempcols)
                 self.temp['time'] = pandas.to_datetime(self.temp['time'])
@@ -239,7 +239,6 @@ class HomeNotebookTab(tk.Frame):
 
     def Filter(self):
         try:
-            print("hello")
             # data = self.home.GetData()
             start = datetime.datetime(int(self.ystart.get()),
                                       int(self.mstart.get()),
@@ -247,23 +246,59 @@ class HomeNotebookTab(tk.Frame):
             end = datetime.datetime(int(self.yend.get()),
                                       int(self.mend.get()),
                                       int(self.dend.get()))
-            print("hello?")
             self.home.ReadDataInRange(start, end)
             data = self.home.GetData()
             datamask = (data['time'] >= start) & (data['time'] <= end)
             print("start:", start, ", end:", end)
             datasubset = data.loc[datamask]
             datasubset = datasubset.sort_values(by=['time'])
-            print(datasubset)
-            self.chart = self.EmbedHomeDataChart(self, self.home, numpts=100, data=datasubset)
+            displaydata = self.AverageDataPerHour(datasubset)
+            self.chart = self.EmbedHomeDataChart(self, self.home, numpts=100, data=displaydata)
         except ValueError:
             pass
 
 
     # Takes in a dataframe with set of data and returns dataframe where
-    # all points with equvalent datetime values are averaged
-    def AverageDataOnSameTime(self, data):
-        pass
+    # hours are binned and averaged
+    def AverageDataPerHour(self, data):
+        avgdata = pandas.DataFrame({'homeid':[], 'deviceid':[], 'time':[], 'irms':[], 'pwr':[], 'pf':[], 'energy':[]})
+        sorteddata = deepcopy(data)
+        sorteddata = sorteddata.sort_values(by=['time'])
+        if not sorteddata.empty:
+            # split into hour chunks
+            homeid = sorteddata.iloc[0]['homeid']
+            deviceid = -1
+            start = sorteddata.iloc[0]['time']
+            curr = start
+            end = sorteddata.iloc[-1]['time']
+            print(start, end)
+
+            while(curr + datetime.timedelta(hours=1) <= end):
+                mask = (sorteddata['time'] >= curr) & (sorteddata['time'] <= curr + datetime.timedelta(hours=1))
+                hourdata = sorteddata.loc[mask]
+                if not hourdata.empty:
+                    print(hourdata)
+                    newrow = {
+                        'homeid': homeid,
+                        'deviceid': deviceid,
+                        'time': hourdata['time'].mean(),
+                        'irms': hourdata['irms'].mean(),
+                        'pwr': hourdata['pwr'].mean(),
+                        'pf': hourdata['pf'].mean(),
+                        'energy': hourdata['energy'].mean()
+                    }
+                    # print(hourdata.mean(axis=0))
+                    avgdata = avgdata.append(newrow, ignore_index=True)
+                    # avgdata.loc[-1] = [homeid, deviceid, avgtime, avgirms, avgpwr, avgpf, avgenergy]
+                curr = curr + datetime.timedelta(hours=1)
+
+            print(avgdata)
+
+        return avgdata
+
+
+
+
 
 
     def SetupTab(self):
