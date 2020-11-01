@@ -128,6 +128,43 @@ class Home():
         else:
             return -1
 
+    # Reads data from database for this home between (inclusive) the provided dates
+    def ReadDataInRange(self, startdate, enddate, dbfile=None):
+        # Can either pass in database file or use Home's database file
+        if dbfile is None:
+            dbfile = self.db
+        # Make sure database exists
+        if os.path.exists(dbfile):
+            try:
+                # Open connection with SQLite db
+                con = sqlite3.connect(dbfile)
+                cur = con.cursor()
+                # "data" table data
+                print(startdate.strftime('%Y-%m-%d %H:%M'))
+                # https://sqlite.org/lang_datefunc.html
+                t = (self.id, startdate.strftime('%Y-%m-%d %H:%M'), enddate.strftime('%Y-%m-%d %H:%M'))
+                cur.execute("SELECT * FROM data WHERE homeid = ? AND time BETWEEN ? AND ?", t)
+                self.data = cur.fetchall()
+                # print(self.data)
+                self.data = pandas.DataFrame(self.data, columns=self.datacols)
+                self.data['time'] = pandas.to_datetime(self.data['time'])
+                # "temp" table data
+                cur.execute("SELECT * FROM temp WHERE homeid = ? AND strftime('%Y-%m-%d',time) BETWEEN ? AND ?", t)
+                self.temp = cur.fetchall()
+                self.temp = pandas.DataFrame(self.temp, columns=self.tempcols)
+                self.temp['time'] = pandas.to_datetime(self.temp['time'])
+                # print(self.temp.info())
+                con.close()
+            except sqlite3.Error as e:
+                print("Home ReadDataInRange: sqlite3 Error: ", e)
+                return -1
+            except OSError as e:
+                print("Home ReadDataInRange OSError: ", e)
+            except Exception as e:
+                print("Home ReadDataInRange error: ", e)
+        else:
+            return -1
+
 
 # It extends the Tkinter listbox to store representations of Home
 # Manages the listbox and corresponding Home objects
@@ -200,13 +237,15 @@ class HomeNotebookTab(tk.Frame):
 
     def Filter(self):
         try:
-            data = self.home.GetData()
+            # data = self.home.GetData()
             start = datetime.datetime(int(self.ystart.get()),
                                       int(self.mstart.get()),
                                       int(self.dstart.get()))
             end = datetime.datetime(int(self.yend.get()),
                                       int(self.mend.get()),
                                       int(self.dend.get()))
+            self.home.ReadDataInRange(start, end)
+            data = self.home.GetData()
             datamask = (data['time'] >= start) & (data['time'] <= end)
             print("start:", start, ", end:", end)
             datasubset = data.loc[datamask]
@@ -240,6 +279,7 @@ class HomeNotebookTab(tk.Frame):
         self.filterbutton.pack(side=tk.BOTTOM, fill=tk.X, expand=1)
 
         today = datetime.date.today()
+        yesterday = today - datetime.timedelta(days=1)
         # Start date filters
         f = tk.Frame(self.filterframe)
         yel = tk.Label(f, text="End Year")
@@ -271,7 +311,7 @@ class HomeNotebookTab(tk.Frame):
         f = tk.Frame(self.filterframe)
         ysl = tk.Label(f, text="Start Year")
         self.ystart = tk.Entry(f, bd=2)
-        self.ystart.insert(0, today.year)
+        self.ystart.insert(0, yesterday.year)
         ysl.pack(side=tk.TOP)
         self.ystart.pack(side=tk.BOTTOM)
         f.pack(side=tk.RIGHT)
@@ -279,7 +319,7 @@ class HomeNotebookTab(tk.Frame):
         f = tk.Frame(self.filterframe)
         msl = tk.Label(f, text="Start Month")
         self.mstart = tk.Entry(f, bd=2)
-        self.mstart.insert(0, today.month)
+        self.mstart.insert(0, yesterday.month)
         msl.pack(side=tk.TOP)
         self.mstart.pack(side=tk.BOTTOM)
         f.pack(side=tk.RIGHT)
@@ -287,7 +327,7 @@ class HomeNotebookTab(tk.Frame):
         f = tk.Frame(self.filterframe)
         dsl = tk.Label(f, text="Start Day")
         self.dstart = tk.Entry(f, bd=2)
-        self.dstart.insert(0, today.day)
+        self.dstart.insert(0, yesterday.day)
         dsl.pack(side=tk.TOP)
         self.dstart.pack(side=tk.BOTTOM)
         f.pack(side=tk.RIGHT)

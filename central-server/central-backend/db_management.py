@@ -144,9 +144,13 @@ class DatabaseManager:
                 cur = con.cursor()
 
                 # Checks if home server in 'homes' table
+                print("hello1")
                 file = os.path.split(csvfile)[1]
+                print("hello2")
                 filename = os.path.splitext(file)[0]
+                print("hello3")
                 folder_id = filename.split("---")[1]
+                print("hello4")
                 print("file is see in local folder: ", filename)
                 print("extracted folderid:", folder_id)
                 # Selects matching folder id from homes table if exists
@@ -201,6 +205,7 @@ class DatabaseManager:
         df = df.drop(labels=[0], axis=0)
         # Fill homeid column with homeid
         df['homeid'] = homeid
+        df['time'] = pandas.to_datetime(df['time'])
         # Make dict for dataframe to use for .to_sql
         print(df)
         dtype = {col_list[i]: col_types[i] for i in range(len(col_types))}

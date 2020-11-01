@@ -51,6 +51,7 @@ def file_check_loop(in_folder, folder_id):
 def main():
     print("Start Home Server")
     #info_file = "hs_info.txt"
+
     info_file = os.path.join(pathlib.Path(__file__).parent.absolute(), "hs_info.txt")
     config = configparser.ConfigParser()
     config.read(info_file)
