@@ -135,21 +135,23 @@ class Home():
             dbfile = self.db
         # Make sure database exists
         if os.path.exists(dbfile):
+            print("hello2")
             try:
                 # Open connection with SQLite db
                 con = sqlite3.connect(dbfile)
                 cur = con.cursor()
                 # "data" table data
+                print("homeid: ", self.id)
                 print(startdate.strftime('%Y-%m-%d %H:%M'))
                 # https://sqlite.org/lang_datefunc.html
-                t = (self.id, startdate.strftime('%Y-%m-%d %H:%M'), enddate.strftime('%Y-%m-%d %H:%M'))
-                cur.execute("SELECT * FROM data WHERE homeid = ? AND time BETWEEN ? AND ?", t)
+                t = (self.id, startdate.strftime('%Y-%m-%d %H:%M:%S'), enddate.strftime('%Y-%m-%d %H:%M:%S'))
+                cur.execute("SELECT * FROM data WHERE homeid = ? AND time BETWEEN DATETIME(?) AND DATETIME(?)", t)
                 self.data = cur.fetchall()
                 # print(self.data)
                 self.data = pandas.DataFrame(self.data, columns=self.datacols)
                 self.data['time'] = pandas.to_datetime(self.data['time'])
                 # "temp" table data
-                cur.execute("SELECT * FROM temp WHERE homeid = ? AND strftime('%Y-%m-%d',time) BETWEEN ? AND ?", t)
+                cur.execute("SELECT * FROM data WHERE homeid = ? AND time BETWEEN DATETIME(?) AND DATETIME(?)", t)
                 self.temp = cur.fetchall()
                 self.temp = pandas.DataFrame(self.temp, columns=self.tempcols)
                 self.temp['time'] = pandas.to_datetime(self.temp['time'])
@@ -237,6 +239,7 @@ class HomeNotebookTab(tk.Frame):
 
     def Filter(self):
         try:
+            print("hello")
             # data = self.home.GetData()
             start = datetime.datetime(int(self.ystart.get()),
                                       int(self.mstart.get()),
@@ -244,6 +247,7 @@ class HomeNotebookTab(tk.Frame):
             end = datetime.datetime(int(self.yend.get()),
                                       int(self.mend.get()),
                                       int(self.dend.get()))
+            print("hello?")
             self.home.ReadDataInRange(start, end)
             data = self.home.GetData()
             datamask = (data['time'] >= start) & (data['time'] <= end)

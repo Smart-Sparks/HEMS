@@ -144,13 +144,9 @@ class DatabaseManager:
                 cur = con.cursor()
 
                 # Checks if home server in 'homes' table
-                print("hello1")
                 file = os.path.split(csvfile)[1]
-                print("hello2")
                 filename = os.path.splitext(file)[0]
-                print("hello3")
                 folder_id = filename.split("---")[1]
-                print("hello4")
                 print("file is see in local folder: ", filename)
                 print("extracted folderid:", folder_id)
                 # Selects matching folder id from homes table if exists

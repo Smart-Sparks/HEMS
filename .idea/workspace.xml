@@ -2,11 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="16cb9fdc-00e5-4a22-8302-dd42d006b6ee" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/central-server/central-backend/db_management.py" beforeDir="false" afterPath="$PROJECT_DIR$/central-server/central-backend/db_management.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/central-server/central-frontend/HomeRepresentation.py" beforeDir="false" afterPath="$PROJECT_DIR$/central-server/central-frontend/HomeRepresentation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/central-server/central-frontend/centralGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/central-server/central-frontend/centralGUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home-server/home-backend/driveMethods.py" beforeDir="false" afterPath="$PROJECT_DIR$/home-server/home-backend/driveMethods.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/home-server/home-backend/home_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/home-server/home-backend/home_server.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,7 +25,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
-  <component name="RunManager" selected="Python.central_server">
+  <component name="RunManager" selected="Python.centralGUI">
     <configuration name="centralGUI" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="HEMS" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -72,8 +70,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.central_server" />
         <item itemvalue="Python.centralGUI" />
+        <item itemvalue="Python.central_server" />
       </list>
     </recent_temporary>
   </component>
@@ -93,28 +91,28 @@
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
     <state x="2660" y="275" key="FileChooserDialogImpl/62.0.1474.864/1920.0.1920.1040@1920.0.1920.1040" timestamp="1603993105695" />
-    <state width="1899" height="214" key="GridCell.Tab.0.bottom" timestamp="1604266002859">
+    <state width="1899" height="214" key="GridCell.Tab.0.bottom" timestamp="1604265544852">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="214" key="GridCell.Tab.0.bottom/62.0.1474.864/1920.0.1920.1040@1920.0.1920.1040" timestamp="1604266002859" />
+    <state width="1899" height="214" key="GridCell.Tab.0.bottom/62.0.1474.864/1920.0.1920.1040@1920.0.1920.1040" timestamp="1604265544852" />
     <state width="1453" height="169" key="GridCell.Tab.0.bottom/62.0.1474.864/1920.0.1920.1040@62.0.1474.864" timestamp="1604001731905" />
     <state width="1453" height="169" key="GridCell.Tab.0.bottom/62.0.1474.864@62.0.1474.864" timestamp="1604005792693" />
-    <state width="1899" height="214" key="GridCell.Tab.0.center" timestamp="1604266002859">
+    <state width="1899" height="214" key="GridCell.Tab.0.center" timestamp="1604265544852">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="214" key="GridCell.Tab.0.center/62.0.1474.864/1920.0.1920.1040@1920.0.1920.1040" timestamp="1604266002859" />
+    <state width="1899" height="214" key="GridCell.Tab.0.center/62.0.1474.864/1920.0.1920.1040@1920.0.1920.1040" timestamp="1604265544852" />
     <state width="1453" height="169" key="GridCell.Tab.0.center/62.0.1474.864/1920.0.1920.1040@62.0.1474.864" timestamp="1604001731905" />
     <state width="1453" height="169" key="GridCell.Tab.0.center/62.0.1474.864@62.0.1474.864" timestamp="1604005792693" />
-    <state width="1899" height="214" key="GridCell.Tab.0.left" timestamp="1604266002858">
+    <state width="1899" height="214" key="GridCell.Tab.0.left" timestamp="1604265544852">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="214" key="GridCell.Tab.0.left/62.0.1474.864/1920.0.1920.1040@1920.0.1920.1040" timestamp="1604266002858" />
+    <state width="1899" height="214" key="GridCell.Tab.0.left/62.0.1474.864/1920.0.1920.1040@1920.0.1920.1040" timestamp="1604265544852" />
     <state width="1453" height="169" key="GridCell.Tab.0.left/62.0.1474.864/1920.0.1920.1040@62.0.1474.864" timestamp="1604001731905" />
     <state width="1453" height="169" key="GridCell.Tab.0.left/62.0.1474.864@62.0.1474.864" timestamp="1604005792693" />
-    <state width="1899" height="214" key="GridCell.Tab.0.right" timestamp="1604266002859">
+    <state width="1899" height="214" key="GridCell.Tab.0.right" timestamp="1604265544852">
       <screen x="1920" y="0" width="1920" height="1040" />
     </state>
-    <state width="1899" height="214" key="GridCell.Tab.0.right/62.0.1474.864/1920.0.1920.1040@1920.0.1920.1040" timestamp="1604266002859" />
+    <state width="1899" height="214" key="GridCell.Tab.0.right/62.0.1474.864/1920.0.1920.1040@1920.0.1920.1040" timestamp="1604265544852" />
     <state width="1453" height="169" key="GridCell.Tab.0.right/62.0.1474.864/1920.0.1920.1040@62.0.1474.864" timestamp="1604001731905" />
     <state width="1453" height="169" key="GridCell.Tab.0.right/62.0.1474.864@62.0.1474.864" timestamp="1604005792693" />
     <state width="1899" height="348" key="GridCell.Tab.1.bottom" timestamp="1603758654782">
