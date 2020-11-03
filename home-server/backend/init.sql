@@ -15,12 +15,12 @@ CREATE TABLE IF NOT EXISTS `hems`.`energy`(
     irms DOUBLE NOT NULL,                    #RMS current for datapoint
     pwr DOUBLE NOT NULL,                     #power for datapoint
     pf DOUBLE NOT NULL,                      #powerfactor for datapoint
-    energy DOUBLE NOT NULL,                  #energy for datapoint
+    energy DOUBLE NOT NULL                  #energy for datapoint
     #primary key(time),
-    CONSTRAINT fk_id FOREIGN KEY (id) 
-        REFERENCES hems.`devices`(id)
-        ON DELETE CASCADE
-        ON UPDATE RESTRICT
+    #CONSTRAINT fk_id FOREIGN KEY (id) 
+    #    REFERENCES hems.`devices`(id)
+    #    ON DELETE CASCADE
+    #    ON UPDATE RESTRICT
 ) ENGINE=InnoDB;
 CREATE TABLE IF NOT EXISTS `hems`.`temperature`(
     id INT NOT NULL,

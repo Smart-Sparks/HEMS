@@ -1,3 +1,4 @@
+# takes the datafile as the first argument
 import mariadb
 import pandas as pd
 import calculations as calc
