@@ -7,6 +7,7 @@ from tkinter import ttk
 
 import numpy as np
 
+from copy import deepcopy
 import sqlite3
 import os
 import datetime
@@ -128,6 +129,44 @@ class Home():
         else:
             return -1
 
+    # Reads data from database for this home between (inclusive) the provided dates
+    def ReadDataInRange(self, startdate, enddate, dbfile=None):
+        # Can either pass in database file or use Home's database file
+        if dbfile is None:
+            dbfile = self.db
+        # Make sure database exists
+        if os.path.exists(dbfile):
+            try:
+                # Open connection with SQLite db
+                con = sqlite3.connect(dbfile)
+                cur = con.cursor()
+                # "data" table data
+                print("homeid: ", self.id)
+                print(startdate.strftime('%Y-%m-%d %H:%M'))
+                # https://sqlite.org/lang_datefunc.html
+                t = (self.id, startdate.strftime('%Y-%m-%d %H:%M:%S'), enddate.strftime('%Y-%m-%d %H:%M:%S'))
+                cur.execute("SELECT * FROM data WHERE homeid = ? AND time BETWEEN DATETIME(?) AND DATETIME(?)", t)
+                self.data = cur.fetchall()
+                # print(self.data)
+                self.data = pandas.DataFrame(self.data, columns=self.datacols)
+                self.data['time'] = pandas.to_datetime(self.data['time'])
+                # "temp" table data
+                cur.execute("SELECT * FROM temp WHERE homeid = ? AND time BETWEEN DATETIME(?) AND DATETIME(?)", t)
+                self.temp = cur.fetchall()
+                self.temp = pandas.DataFrame(self.temp, columns=self.tempcols)
+                self.temp['time'] = pandas.to_datetime(self.temp['time'])
+                # print(self.temp.info())
+                con.close()
+            except sqlite3.Error as e:
+                print("Home ReadDataInRange: sqlite3 Error: ", e)
+                return -1
+            except OSError as e:
+                print("Home ReadDataInRange OSError: ", e)
+            except Exception as e:
+                print("Home ReadDataInRange error: ", e)
+        else:
+            return -1
+
 
 # It extends the Tkinter listbox to store representations of Home
 # Manages the listbox and corresponding Home objects
@@ -200,27 +239,66 @@ class HomeNotebookTab(tk.Frame):
 
     def Filter(self):
         try:
-            data = self.home.GetData()
+            # data = self.home.GetData()
             start = datetime.datetime(int(self.ystart.get()),
                                       int(self.mstart.get()),
                                       int(self.dstart.get()))
             end = datetime.datetime(int(self.yend.get()),
                                       int(self.mend.get()),
                                       int(self.dend.get()))
+            self.home.ReadDataInRange(start, end)
+            data = self.home.GetData()
             datamask = (data['time'] >= start) & (data['time'] <= end)
             print("start:", start, ", end:", end)
             datasubset = data.loc[datamask]
             datasubset = datasubset.sort_values(by=['time'])
-            print(datasubset)
-            self.chart = self.EmbedHomeDataChart(self, self.home, numpts=100, data=datasubset)
+            displaydata = self.AverageDataPerHour(datasubset)
+            self.chart = self.EmbedHomeDataChart(self, self.home, numpts=100, data=displaydata)
         except ValueError:
             pass
 
 
     # Takes in a dataframe with set of data and returns dataframe where
-    # all points with equvalent datetime values are averaged
-    def AverageDataOnSameTime(self, data):
-        pass
+    # hours are binned and averaged
+    def AverageDataPerHour(self, data):
+        avgdata = pandas.DataFrame({'homeid':[], 'deviceid':[], 'time':[], 'irms':[], 'pwr':[], 'pf':[], 'energy':[]})
+        sorteddata = deepcopy(data)
+        sorteddata = sorteddata.sort_values(by=['time'])
+        if not sorteddata.empty:
+            # split into hour chunks
+            homeid = sorteddata.iloc[0]['homeid']
+            deviceid = -1
+            start = sorteddata.iloc[0]['time']
+            curr = start
+            end = sorteddata.iloc[-1]['time']
+            print(start, end)
+
+            while(curr + datetime.timedelta(hours=1) <= end):
+                mask = (sorteddata['time'] >= curr) & (sorteddata['time'] <= curr + datetime.timedelta(hours=1))
+                hourdata = sorteddata.loc[mask]
+                if not hourdata.empty:
+                    print(hourdata)
+                    newrow = {
+                        'homeid': homeid,
+                        'deviceid': deviceid,
+                        'time': hourdata['time'].mean(),
+                        'irms': hourdata['irms'].mean(),
+                        'pwr': hourdata['pwr'].mean(),
+                        'pf': hourdata['pf'].mean(),
+                        'energy': hourdata['energy'].mean()
+                    }
+                    # print(hourdata.mean(axis=0))
+                    avgdata = avgdata.append(newrow, ignore_index=True)
+                    # avgdata.loc[-1] = [homeid, deviceid, avgtime, avgirms, avgpwr, avgpf, avgenergy]
+                curr = curr + datetime.timedelta(hours=1)
+
+            print(avgdata)
+
+        return avgdata
+
+
+
+
 
 
     def SetupTab(self):
@@ -240,6 +318,7 @@ class HomeNotebookTab(tk.Frame):
         self.filterbutton.pack(side=tk.BOTTOM, fill=tk.X, expand=1)
 
         today = datetime.date.today()
+        yesterday = today - datetime.timedelta(days=1)
         # Start date filters
         f = tk.Frame(self.filterframe)
         yel = tk.Label(f, text="End Year")
@@ -271,7 +350,7 @@ class HomeNotebookTab(tk.Frame):
         f = tk.Frame(self.filterframe)
         ysl = tk.Label(f, text="Start Year")
         self.ystart = tk.Entry(f, bd=2)
-        self.ystart.insert(0, today.year)
+        self.ystart.insert(0, yesterday.year)
         ysl.pack(side=tk.TOP)
         self.ystart.pack(side=tk.BOTTOM)
         f.pack(side=tk.RIGHT)
@@ -279,7 +358,7 @@ class HomeNotebookTab(tk.Frame):
         f = tk.Frame(self.filterframe)
         msl = tk.Label(f, text="Start Month")
         self.mstart = tk.Entry(f, bd=2)
-        self.mstart.insert(0, today.month)
+        self.mstart.insert(0, yesterday.month)
         msl.pack(side=tk.TOP)
         self.mstart.pack(side=tk.BOTTOM)
         f.pack(side=tk.RIGHT)
@@ -287,7 +366,7 @@ class HomeNotebookTab(tk.Frame):
         f = tk.Frame(self.filterframe)
         dsl = tk.Label(f, text="Start Day")
         self.dstart = tk.Entry(f, bd=2)
-        self.dstart.insert(0, today.day)
+        self.dstart.insert(0, yesterday.day)
         dsl.pack(side=tk.TOP)
         self.dstart.pack(side=tk.BOTTOM)
         f.pack(side=tk.RIGHT)

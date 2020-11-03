@@ -52,12 +52,15 @@ class CentralGUI(tk.Frame):
         # ***********************************************************
         home_ids = GetAllHomeIDs(self.database_file)
         print(home_ids)
+        today = datetime.datetime.today()
+        yesterday = today - datetime.timedelta(days=1)
         # Insert representations for each home into the listbox
         if home_ids is not None:
             for id in home_ids:
                 home = Home(str(id), self.database_file)
-                # Load data from database
-                home.ReadData()
+                # Load data from past day
+                # home.ReadData()
+                home.ReadDataInRange(yesterday, today)
                 self.homeServerListbox.insert(tk.END, home)
         # Open tab for home server on double click
         self.homeServerListbox.bind("<Double-Button-1>", self.onHomeSelect)

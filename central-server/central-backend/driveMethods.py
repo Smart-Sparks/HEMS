@@ -26,7 +26,8 @@ def print_file_list(drive):
 # returns 0 on successfule upload, -1 if problem
 def upload_csv_to_drive(drive, csv_path):
     try:
-        file1 = drive.CreateFile({'title': 'data.csv'})
+        name = os.path.basename(csvpath)
+        file1 = drive.CreateFile({'title': name})
         file1.SetContentFile(csv_path)
         file1.Upload()
         return 0
@@ -38,7 +39,8 @@ def upload_csv_to_drive(drive, csv_path):
 # returns 0 on successfule upload, -1 if problem
 def upload_csv_to_drive_folder(drive, csv_path, folder_id):
     try:
-        file1 = drive.CreateFile({'title': 'data.csv', 'parents': [{"id": folder_id}]})
+        name = os.path.basename(csv_path)
+        file1 = drive.CreateFile({'title': name, 'parents': [{"id": folder_id}]})
         file1.SetContentFile(csv_path)
         file1.Upload()
         return 0
@@ -120,12 +122,8 @@ def download_all_files_from_folder_to_dir_recursively_then_delete_from_drive(dri
                 # Create file from Drive using id
                 fd = drive.CreateFile({'title': f['title'], 'id': f['id']})
                 orig_file, ext = os.path.splitext(f['title'])
-
                 # Add id to filename for download
-                # filename = orig_file + "_" + f['id'] + ext
-                # Create title with parent folder id in name
                 filename = orig_file + "---" + folder_id + ext
-
                 # Downloads file with new filename in specified directory
                 fd.GetContentFile(os.path.join(dir, filename))
                 # Delete file from GoogleDrive

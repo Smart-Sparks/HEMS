@@ -10,11 +10,11 @@ from os.path import join
 # END IMPORTS
 
 # START METHODS
-def upload_file_to_drive(f):
-    info_file = "hs_info.txt"
-    config = configparser.ConfigParser()
-    config.read(info_file)
-    folder_id = config.get('home server', 'folder_id')
+def upload_file_to_drive(f, folder_id):
+    #info_file = "hs_info.txt"
+    #config = configparser.ConfigParser()
+    #config.read(info_file)
+    #folder_id = config.get('home server', 'folder_id')
 
     d = DM.access_drive()
     # r = DM.upload_csv_to_drive(d, f)
@@ -25,7 +25,7 @@ def delete_local_csv(f):
     os.remove(f)
 
 # Loops and checks folder every period, uploading csv files in the folder and deleting when successful
-def file_check_loop(in_folder):
+def file_check_loop(in_folder, folder_id):
     data_src_dir = in_folder
     wait_period = 2
     # Should loop forever
@@ -36,9 +36,11 @@ def file_check_loop(in_folder):
         for file in files:
             f = os.path.join(data_src_dir, file)
             ext = os.path.splitext(f)[1]
-            if ext == '.csv':
+            if ext == '.tsv':
+                print("here")
                 # attempts upload and deletes file on success
-                ret = upload_file_to_drive(f)
+                ret = upload_file_to_drive(f, folder_id)
+                print(ret)
                 if (ret == 0):
                     delete_local_csv(f)
             else:
@@ -49,12 +51,14 @@ def file_check_loop(in_folder):
 def main():
     print("Start Home Server")
     #info_file = "hs_info.txt"
+
     info_file = os.path.join(pathlib.Path(__file__).parent.absolute(), "hs_info.txt")
     config = configparser.ConfigParser()
     config.read(info_file)
     in_folder = config.get('home server', 'input')
     in_folder = os.path.join(pathlib.Path.home(), in_folder)
-    file_check_loop(in_folder)
+    folder_id = config.get('home server', 'folder_id')
+    file_check_loop(in_folder, folder_id)
 # END METHODS
 
 
