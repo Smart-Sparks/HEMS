@@ -3,6 +3,8 @@ import pandas as pd
 import calculations as calc
 import sys
 
+# TODO: TAKE AS CLA
+#datafile = r'../communications/SmartDevice3.txt'
 datafile = r'temperaturefile.csv'
 
 #mariadb connection
