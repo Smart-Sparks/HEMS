@@ -38,7 +38,7 @@ with open(datafile, 'r') as data:
 device_id = int(preamble[0])                # device id that uploaded data
 time_updated = preamble[1].replace('"', '') # time the device uploaded data to the server
 num_rows = int(antepreamble[0]) # number of rows of data
-time_millis = int antepreamble[1] # time the arduino plug/temp sensor uploaded data (in millis() function format)
+Tx_millis = int(antepreamble[1]) # time the arduino plug/temp sensor uploaded data (in millis() function format)
 
 
 
@@ -53,7 +53,7 @@ if(str(argv[2]) == "ENERGY"):
     df['energy'] = [calc.energy(power, pf) for power, pf in zip(df['power'],df['pf'])]
 # convert the time in millis into datetime type
     time_updated_DT = dt.datetime.strptime(time_updated, "%Y-%m-%d %H:%M:%S") # python datetime format
-    df['time'] = [(time_updated_DT - dt.deltaTime(milliseconds = millis)) for millis in df['time']]
+    df['time'] = [(time_updated_DT - dt.deltaTime(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
 
 # write to mariadb
     try: 
@@ -79,8 +79,7 @@ elif(str(sys.argv[2] == "TEMPERATURE")):
 
 # convert the time in millis into datetime type
     time_updated_DT = dt.datetime.strptime(time_updated, "%Y-%m-%d %H:%M:%S") # python datetime format
-    df['time'] = [(time_updated_DT - dt.deltaTime(milliseconds = millis)) for millis in df['time']]
-
+    df['time'] = [(time_updated_DT - dt.deltaTime(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
 # write to mariadb
     try:
         cur.execute("REPLACE INTO devices (id, last_update, plug) VALUES (?, ?, ?)",
