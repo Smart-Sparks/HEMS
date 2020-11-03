@@ -4,7 +4,7 @@ import pandas as pd
 import calculations as calc
 import sys
 
-datafile = r'energyfile.csv'
+datafile = r'~/dev/HEMS/home-server/communications/SmartDevice2.txt' # make CLA
 
 #mariadb connection
 try: 
@@ -19,11 +19,11 @@ cur = conn.cursor()
 
 with open(datafile, 'r') as data:
     preamble = data.readline().split()
-    preamble = [preamble[0], preamble[1], preamble[2]+' '+preamble[3]] # reconcatenate the datetime
+    preamble = [preamble[0], preamble[1]+' '+preamble[2], preamble[3]] # reconcatenate the datetime
     #print(preamble)
 device_id = int(preamble[0])                # device id that uploaded data
-num_rows = int(preamble[1])                 # number of rows of data
-time_updated = preamble[2].replace('"', '') # time the device uploaded data to the server
+num_rows = int(preamble[2])                 # number of rows of data
+time_updated = preamble[1].replace('"', '') # time the device uploaded data to the server
 
 df = pd.read_csv (datafile, header=None, skiprows=[0], names=['time','power','pf','rms current'])
 print(df)
