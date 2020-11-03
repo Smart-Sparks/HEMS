@@ -1,3 +1,3 @@
-sudo rfcomm connect hci1 24:62:AB:B3:7B:22 1 &
+sudo rfcomm connect hci1 A4:CF:12:8B:57:22 1 &
 
 
