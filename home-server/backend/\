@@ -1,4 +1,0 @@
-# send to /homeBackend/input
-echo 'SELECT * FROM devices' | mysql -B hems >> devices.tsv
-echo 'SELECT * FROM energy' | mysql -B hems >> energy.tsv
-echo 'SELECT * FROM temperature' | mysql -B hems >> temperature.tsv

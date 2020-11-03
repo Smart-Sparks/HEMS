@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `hems`.`energy`(
     pwr DOUBLE NOT NULL,                     #power for datapoint
     pf DOUBLE NOT NULL,                      #powerfactor for datapoint
     energy DOUBLE NOT NULL,                  #energy for datapoint
-    primary key(time),
+    #primary key(time),
     CONSTRAINT fk_id FOREIGN KEY (id) 
         REFERENCES hems.`devices`(id)
         ON DELETE CASCADE
@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS `hems`.`energy`(
 CREATE TABLE IF NOT EXISTS `hems`.`temperature`(
     id INT NOT NULL,
     time DATETIME NOT NULL,
-    temperature DOUBLE NOT NULL,
-    primary key(time)
+    temperature DOUBLE NOT NULL
+    #primary key(time)
 #    CONSTRAINT fk_id FOREIGN KEY (id)
 #        REFERENCES hems.`devices`(id)
 #        ON DELETE CASCADE
