@@ -2,6 +2,7 @@ import mariadb
 import pandas as pd
 import calculations as calc
 import sys
+import datetime as dt
 
 # TODO: TAKE AS CLA
 #datafile = r'../communications/SmartDevice3.txt'
@@ -20,11 +21,13 @@ cur = conn.cursor()
 
 with open(datafile, 'r') as data:
     preamble = data.readline().split()
-    preamble = [preamble[0], preamble[1], preamble[2]+' '+preamble[3]] # reconcatenate the datetime
+    preamble = [preamble[0], preamble[1]+' '+preamble[2]] # reconcatenate the datetime
+    antepreamble = data.readline().split()
     #print(preamble)
 device_id = int(preamble[0])                # device id that uploaded data
-num_rows = int(preamble[1])                 # number of rows of data
-time_updated = preamble[2].replace('"', '') # time the device uploaded data to the server
+time_updated = preamble[1].replace('"', '') # time the device uploaded data to the server
+num_rows = int(antepreabmle[0]) # number of rows of data
+time_millis = int antepreamble[1] # time the arduiono plug/temp sensor uploaded data (in millis() function format)
 
 df = pd.read_csv (datafile, header=None, skiprows=[0], names=['time','temperature'])
 print(df)

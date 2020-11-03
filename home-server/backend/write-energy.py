@@ -3,6 +3,7 @@ import mariadb
 import pandas as pd
 import calculations as calc
 import sys
+import datetime as dt
 
 datafile = r'../communications/SmartDevice2.txt' # make CLA
 
@@ -25,12 +26,16 @@ with open(datafile, 'r') as data:
 device_id = int(preamble[0])                # device id that uploaded data
 time_updated = preamble[1].replace('"', '') # time the device uploaded data to the server
 num_rows = int(antepreamble[0]) # number of rows of data
-time_sent = int antepreamble[1] # time the arduino plug/temp sensor uploaded data (in millis() function format)
+time_millis = int antepreamble[1] # time the arduino plug/temp sensor uploaded data (in millis() function format)
 
 df = pd.read_csv (datafile, header=None, skiprows=[0,1], names=['time','power','pf','rms current'])
 print(df)
+
 # calculate energy per row
 df['energy'] = [calc.energy(power, pf) for power, pf in zip(df['power'],df['pf'])]
+# convert the time in millis into datetime type
+time_updated_DT = dt.datetime.strptime(time_updated, "%Y-%m-%d %H:%M:%S") # python datetime format
+df['time'] = [(time_updated_DT - dt.deltaTime(milliseconds = millis)) for millis in df['time']]
 
 # write to mariadb
 try: 
