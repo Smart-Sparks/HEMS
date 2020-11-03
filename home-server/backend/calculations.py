@@ -5,5 +5,4 @@ from math import acos
 #   arccos of the powerfactor.
 def energy(power, pf):
     return power * 60 * acos(pf) 
-def findTime(time_start, millis):
-    return
+
