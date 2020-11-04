@@ -5,6 +5,7 @@
 #define MAXK 60
 #define MAXI 180
 
+
 float Vrm = 0.00;
 float Vrms = 0.00;
 float Irm = 0.00;
@@ -20,6 +21,8 @@ long previousMillis = 0;
 long currentMillis = 0;
 long ktime = 0;
 long CaseTime = 0;
+long endtranstime = 0;
+long newktime = 0; 
 
 int j =0;
 int i =0;
@@ -63,11 +66,13 @@ void setup() {
 void loop() {
   
   currentMillis = millis();   
+
   char command = 'z'; // for incoming serial data
      
   command = SerialNina.read();              // check for command from user 
   switch (command){
-       
+    
+  
       case 'a':                          // case a - send data to home server 
 
         CaseTime = millis();
@@ -80,24 +85,27 @@ void loop() {
           SerialNina.print(p[j].cAvgTime);
           SerialNina.print(",");
           SerialNina.print('\t'); 
-          SerialNina.print(p[j].cVrms);
-          SerialNina.print(","); 
-          SerialNina.print('\t'); 
+          //SerialNina.print(p[j].cVrms);
+          //SerialNina.print(","); 
+          //SerialNina.print('\t'); 
           SerialNina.print(p[j].cIrms);
           SerialNina.print(",");
           SerialNina.print('\t');
           SerialNina.print(p[j].cRealP); 
           SerialNina.print(",");
           SerialNina.print('\t'); 
-          SerialNina.print(p[j].cS);
-          SerialNina.print(",");
-          SerialNina.print('\t'); 
+          //SerialNina.print(p[j].cS);
+          //SerialNina.print(",");
+          //SerialNina.print('\t'); 
           SerialNina.println(p[j].cpf);
          
         }
           
         k = 0;                            // reset values after sending data to home server 
         j = 0;
+
+        endtranstime = millis();
+       
           
      break;
         
@@ -113,7 +121,7 @@ void loop() {
 
 
      default:
-      //if (i<MAXI){
+     if (command != 'c'){
         Ipin=analogRead(CURRENTPIN);          // read analog signal from current sensor 
         I = (Ipin/1024)*3.3;                  // Callibration
         Iout = abs(I-2.3)/0.066;              // Firouzan's equation
@@ -133,13 +141,13 @@ void loop() {
         Power = Power + P;
     
         i ++;                                 // counts how many times the while loop executes - the size of the arrays
-       // }
     
       if(currentMillis - previousMillis > minute) {
         previousMillis = currentMillis;
     
         ktime = millis();                     //Time of af averages
-        p[k].cAvgTime = ktime;
+        newktime = ktime - endtranstime;
+        p[k].cAvgTime = newktime;
 
         Vrms = sqrt(Vrm/(i+1));               // Computing Vrms
         p[k].cVrms = Vrms;          
@@ -164,6 +172,7 @@ void loop() {
         Irm = 0.00;
         Power = 0.0;
       }
+     }
     break;
     }
 }      
