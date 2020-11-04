@@ -15,6 +15,15 @@ float TavTimeArray[MAXK];
 long minute = 60000;                    // minute timing
 long previousMillis = 0;
 long currentMillis = 0;                 // end global initializations
+long CaseTime = 0;
+
+float Tpin = 0.00;
+float T = 0.00;
+float Tout = 0.00;
+float Tav = 0.00;
+long TavTime = 0;
+float Tsum = 0.00;
+
 
 void setup() {
   
@@ -28,27 +37,32 @@ void setup() {
 }
 
 void loop() {
-  float Tpin = 0.00;
-  float T = 0.00;
-  float Tout = 0.00;
-  float Tav = 0.00;
-  float TavTime = 0.00;
-  float Tsum = 0.00;
-
+  
+  currentMillis = millis();              // timer
   char command = 0;
 
-  if (SerialNina.available() > 0) {  
+  //if (SerialNina.available() > 0) {  
     command = SerialNina.read();           // check to see if there is a command from home server ?
   
     switch (command){                        // go to case that matches command
-      currentMillis = millis();              // timer
+      
+       
         case 'a':                              // case a - send averages to pi 
-          delay(10000);                        // delay for 10 seconds
+        
+          CaseTime = millis();
+          
+          SerialNina.print(k);
+          SerialNina.print('\t');
+          SerialNina.println(CaseTime);
+          
+                                              // delay for 10 seconds
           for (j; j < k ; j++){
 
-            SerialNina.print(k):
-            SerialNina.print('\t');
+           // SerialNina.print(k);
+           // SerialNina.print(",");
+           // SerialNina.print('\t');
             SerialNina.print(TavTimeArray[j]);
+            SerialNina.print(",");
             SerialNina.print('\t');
             SerialNina.println(Taverages[j]); 
           }
@@ -81,9 +95,10 @@ void loop() {
       TavTimeArray[k] = TavTime;
       k ++;
       i = 0;                               // reset i
+
+      Tsum =0.00;                          // reset sums
     }
   
     break; 
-  }
   }
 }

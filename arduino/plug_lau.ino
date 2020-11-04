@@ -1,6 +1,6 @@
 #define CURRENTPIN A1                        // initializations
 #define VOLTAGEPIN A0
-#define RELAY 12
+#define RELAY 8
 #define BAUDRATE 115200
 #define MAXK 60
 #define MAXI 180
@@ -18,6 +18,7 @@ long minute = 60000;                   // minute timing
 long previousMillis = 0;
 long currentMillis = 0;
 long ktime = 0;
+long CaseTime = 0;
 
 int j =0;
 int i =0;
@@ -31,7 +32,7 @@ float P[MAXI];
 
 struct comp
   {
-    float cAvgTime;
+    long cAvgTime;
     float cVrms;
     float cIrms;
     float cRealP;
@@ -58,7 +59,7 @@ void setup() {
   pinMode(RELAY, OUTPUT);
   pinMode(CURRENTPIN, INPUT);
   pinMode(VOLTAGEPIN, INPUT);
-  digitalWrite(RELAY, LOW); // normally closed
+  digitalWrite(RELAY, HIGH); // normally open
 }
 
 void loop() {
@@ -72,20 +73,31 @@ void loop() {
     switch (command){
        
       case 'a':                          // case a - send data to home server 
+
+        CaseTime = millis();
+        
+        SerialNina.print(k);
+        SerialNina.print('\t'); 
+        SerialNina.println(CaseTime);
+        
         for(j; j<k; j++){
           SerialNina.print(p[j].cAvgTime);
+          SerialNina.print(",");
           SerialNina.print('\t'); 
-          SerialNina.print(p[j].cVrms); 
-          SerialNina.print('\t'); 
+         // SerialNina.print(p[j].cVrms);
+         // SerialNina.print(","); 
+         // SerialNina.print('\t'); 
           SerialNina.print(p[j].cIrms);
+          SerialNina.print(",");
           SerialNina.print('\t');
           SerialNina.print(p[j].cRealP); 
+          SerialNina.print(",");
+         // SerialNina.print('\t'); 
+         // SerialNina.print(p[j].cS);
+         // SerialNina.print(",");
           SerialNina.print('\t'); 
-          SerialNina.print(p[j].cS);
-          SerialNina.print('\t'); 
-          SerialNina.print(p[j].cpf);
-          SerialNina.print('\t'); 
-          SerialNina.println(j);
+          SerialNina.println(p[j].cpf);
+         
         }
           
         k = 0;                            // reset values after sending data to home server 
@@ -93,12 +105,12 @@ void loop() {
           
      break;
         
-     case 'b':                                   // case b - toggle really - disconnect load 
+     case 'b':                                   // case b - toggle really - reconnect load 
       digitalWrite(RELAY,HIGH);
       SerialNina.println("Relay toggled");
       break;
 
-     case 'c':                                   // case c - toggle relay - reconnect load 
+     case 'c':                                   // case c - toggle relay - disconnect load 
       digitalWrite(RELAY,LOW);
       SerialNina.println("Relay toggled");
       break;
@@ -107,13 +119,17 @@ void loop() {
      default:
       if (i<MAXI){
         Ipin=analogRead(CURRENTPIN);          // read analog signal from current sensor 
-        I = (Ipin/1024)*3.3;                  // callibration
-        Iout = (2.797*I) +1;                  // Firouzan's equation
+        //I = (Ipin/1024)*3.3;                  // callibration
+        //Iout = (2.797*I) +1;                  // Firouzan's equation
+        I = (Ipin/1024)*3.3;
+        Iout = abs(I-2.3)/0.066;
         Iarray[i] = Iout;                     // store all current values in array 
 
         Vpin = analogRead(VOLTAGEPIN);        // read analog signal from voltage sesnor
-        V= ((Vpin/1024)*3.3); // -(2.37-2.292);      // callibration
-        Vout = (478.947*V)- 1203.376;         // Firouzan's equations
+        //V= ((Vpin/1024)*3.3); // -(2.37-2.292);      // callibration
+        //Vout = (478.947*V)- 1203.376;         // Firouzan's equations
+        V = (Vpin/1024)*3.3;
+        Vout = abs(48*V);
         Varray[i] = Vout;                     // store all voltage values in array 
 
         Ir[i] = Iarray[i]*Iarray[i];          // Computing Irms  - sum(Isample^2)
@@ -155,7 +171,7 @@ void loop() {
 
         Vrm = 0.00;                          // reset sums after minute
         Irm = 0.00;
-        Power = 0.00;
+        Power = 0.0
       }
     break;
     }
