@@ -9,3 +9,4 @@ sleep 1
 cat /dev/rfcomm0 >> SmartDevice3.txt 2>&1
 sleep 15
 bash disconnect.sh
+echo Finished sd3.sh
