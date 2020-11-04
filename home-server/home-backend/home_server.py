@@ -31,16 +31,14 @@ def file_check_loop(in_folder, folder_id):
     # Should loop forever
     while (True):
         files = os.listdir(data_src_dir)
-        print(files)
+        #print(files)
         # attempts to upload every .csv in src folder, deletes files of any other type
         for file in files:
             f = os.path.join(data_src_dir, file)
             ext = os.path.splitext(f)[1]
             if ext == '.tsv':
-                print("here")
                 # attempts upload and deletes file on success
                 ret = upload_file_to_drive(f, folder_id)
-                print(ret)
                 if (ret == 0):
                     delete_local_csv(f)
             else:
@@ -49,7 +47,7 @@ def file_check_loop(in_folder, folder_id):
 
 
 def main():
-    print("Start Home Server")
+    #print("Start Home Server")
     #info_file = "hs_info.txt"
 
     info_file = os.path.join(pathlib.Path(__file__).parent.absolute(), "hs_info.txt")
