@@ -1,0 +1,6 @@
+database columns with units:
+time in seconds
+irms in mA
+pwr  in mW (real power or apparent power???)
+pf is unitless (power factor)
+energy in mJ
