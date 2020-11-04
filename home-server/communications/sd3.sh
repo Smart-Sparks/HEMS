@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+echo Collecting data from SmartDevice3
 bash connectsd3.sh
 # temperature sensor
 sleep 5

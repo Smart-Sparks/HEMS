@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+echo Collecting data from SmartDevice2
 bash connectsd2.sh
 sleep 5
 echo 2 $(date '+%Y-%m-%d %H:%M:%S') > SmartDevice2.txt 2>&1
