@@ -1,8 +1,10 @@
+# takes the datafile as the first argument
 import mariadb
 import pandas as pd
 import calculations as calc
+import sys
 
-datafile = r'datafile.csv'
+datafile = r'energyfile.csv'
 
 #mariadb connection
 try: 
@@ -29,15 +31,15 @@ print(df)
 df['energy'] = [calc.energy(power, pf) for power, pf in zip(df['power'],df['pf'])]
 
 # write to mariadb
-try:
-    cur.execute("INSERT INTO devices (id, last_update) VALUES (?, ?)",
-            (device_id, time_updated))
+try: 
+    cur.execute("REPLACE INTO devices (id, last_update, plug) VALUES (?, ?, ?)",
+            (device_id, time_updated, True))
 except mariadb.Error as e:
     print(f"Error: {e}")
     sys.exit(2)
 for idx in range(num_rows):
     row = df.iloc[idx]
-    cur.execute("INSERT INTO data VALUES (?, ?, ?, ?, ?, ?)",
+    cur.execute("INSERT INTO energy VALUES (?, ?, ?, ?, ?, ?)",
             (device_id,
                 row['time'], row['power'], row['pf'], row['rms current'], row['energy']) 
             )

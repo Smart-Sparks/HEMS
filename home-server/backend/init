@@ -1,9 +1,14 @@
 #Initialize all that is necessary
 #Download?
-sudo apt-get install mariadb-server
-sudo apt-get install python3-pip
-sudo pip3 install mariadb
+#TODO: Include message to confirm installing dependencies
+#sudo apt-get install Qt-build-essential
+#sudo apt-get install apache2
+#sudo apt-get install mariadb-server
+#sudo apt-get install python3-pip
+#sudo pip3 install mariadb
+#sudo pip3 install pandas
+#TODO: Include message to confirm resetting the database
 #Initialize mariadb database 
 echo Initializing the mariadb database...
-sudo mariadb < init.sql
+sudo mariadb --verbose < init.sql
 echo Complete!

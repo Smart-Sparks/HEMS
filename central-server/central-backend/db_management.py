@@ -177,6 +177,8 @@ class DatabaseManager:
                                                   self._temp_col_types,
                                                   homeid,
                                                   con)
+                else:
+                    print(filename, " did not match usage pattern \"energy\" nor temperature pattern \"temperature\"")
 
                 con.commit()
                 con.close()
@@ -199,6 +201,7 @@ class DatabaseManager:
         df = df.drop(labels=[0], axis=0)
         # Fill homeid column with homeid
         df['homeid'] = homeid
+        df['time'] = pandas.to_datetime(df['time'])
         # Make dict for dataframe to use for .to_sql
         print(df)
         dtype = {col_list[i]: col_types[i] for i in range(len(col_types))}
