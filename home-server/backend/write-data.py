@@ -17,7 +17,7 @@ if len(sys.argv) != 3:
     print("Where DATAFILE is the name of the datafile and TYPE is whether it is temperature or energy data.")
     sys.exit(1)
 
-datafile = str(argv[1])
+datafile = str(sys.argv[1])
 
 #mariadb connection
 try: 
@@ -45,7 +45,7 @@ Tx_millis = int(antepreamble[1]) # time the arduino plug/temp sensor uploaded da
 ###################
 # IF ENERGY FILE #
 ##################
-if(str(argv[2]) == "ENERGY"):
+if(str(sys.argv[2]) == "ENERGY"):
     df = pd.read_csv (datafile, header=None, skiprows=[0,1], names=['time','power','pf','rms current'])
     print(df)
 
@@ -53,7 +53,7 @@ if(str(argv[2]) == "ENERGY"):
     df['energy'] = [calc.energy(power, pf) for power, pf in zip(df['power'],df['pf'])]
 # convert the time in millis into datetime type
     time_updated_DT = dt.datetime.strptime(time_updated, "%Y-%m-%d %H:%M:%S") # python datetime format
-    df['time'] = [(time_updated_DT - dt.deltaTime(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
+    df['time'] = [str(time_updated_DT - dt.timedelta(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
 
 # write to mariadb
     try: 
@@ -79,7 +79,7 @@ elif(str(sys.argv[2] == "TEMPERATURE")):
 
 # convert the time in millis into datetime type
     time_updated_DT = dt.datetime.strptime(time_updated, "%Y-%m-%d %H:%M:%S") # python datetime format
-    df['time'] = [(time_updated_DT - dt.deltaTime(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
+    df['time'] = [str(time_updated_DT - dt.timedelta(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
 # write to mariadb
     try:
         cur.execute("REPLACE INTO devices (id, last_update, plug) VALUES (?, ?, ?)",

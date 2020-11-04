@@ -6,4 +6,4 @@ sleep 1
 sudo cat /dev/rfcomm0 >> SmartDevice2.txt 2>&1
 sleep 15
 bash disconnect.sh 
-echo Finished with sd2.sh script.
+echo sd2.sh completed execution..
