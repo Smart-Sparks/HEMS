@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 #Initialize all that is necessary
 #Download?
 #TODO: Include message to confirm installing dependencies

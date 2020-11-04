@@ -1,3 +1,4 @@
+#!/usr/bin/bash
 # William Plucknett
 # Pull all of the data out of the hems database and write them in
 # separate .tsv files for Chase's central server to pick up.
