@@ -13,6 +13,7 @@ float S = 0.00;
 float pf = 0.00;
 float Power = 0.00;
 float RealP = 0.00;
+float P = 0.00;
 
 long minute = 60000;                   // minute timing
 long previousMillis = 0;
@@ -23,12 +24,6 @@ long CaseTime = 0;
 int j =0;
 int i =0;
 int k = 0;
-
-float Varray[MAXI];          
-float Iarray[MAXI];            
-float Vr[MAXI];
-float Ir[MAXI];
-float P[MAXI];
 
 struct comp
   {
@@ -45,10 +40,13 @@ comp p[MAXK];
 float Vpin = 0.00;
 float V = 0.00; 
 float Vout = 0.00;
+float Vr = 0.00;
 
 float Ipin = 0.00;
 float I = 0.00;
 float Iout = 0.00;
+float Ir = 0.00;
+
  
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
@@ -66,11 +64,9 @@ void loop() {
   
   currentMillis = millis();   
   char command = 'z'; // for incoming serial data
-  
-  //if (Serial.available() > 0) {           // if Serial connection is avaialbe:
      
-    command = SerialNina.read();              // check for command from user 
-    switch (command){
+  command = SerialNina.read();              // check for command from user 
+  switch (command){
        
       case 'a':                          // case a - send data to home server 
 
@@ -84,17 +80,17 @@ void loop() {
           SerialNina.print(p[j].cAvgTime);
           SerialNina.print(",");
           SerialNina.print('\t'); 
-         // SerialNina.print(p[j].cVrms);
-         // SerialNina.print(","); 
-         // SerialNina.print('\t'); 
+          SerialNina.print(p[j].cVrms);
+          SerialNina.print(","); 
+          SerialNina.print('\t'); 
           SerialNina.print(p[j].cIrms);
           SerialNina.print(",");
           SerialNina.print('\t');
           SerialNina.print(p[j].cRealP); 
           SerialNina.print(",");
-         // SerialNina.print('\t'); 
-         // SerialNina.print(p[j].cS);
-         // SerialNina.print(",");
+          SerialNina.print('\t'); 
+          SerialNina.print(p[j].cS);
+          SerialNina.print(",");
           SerialNina.print('\t'); 
           SerialNina.println(p[j].cpf);
          
@@ -117,32 +113,27 @@ void loop() {
 
 
      default:
-      if (i<MAXI){
+      //if (i<MAXI){
         Ipin=analogRead(CURRENTPIN);          // read analog signal from current sensor 
-        //I = (Ipin/1024)*3.3;                  // callibration
-        //Iout = (2.797*I) +1;                  // Firouzan's equation
-        I = (Ipin/1024)*3.3;
-        Iout = abs(I-2.3)/0.066;
-        Iarray[i] = Iout;                     // store all current values in array 
+        I = (Ipin/1024)*3.3;                  // Callibration
+        Iout = abs(I-2.3)/0.066;              // Firouzan's equation
+       
 
         Vpin = analogRead(VOLTAGEPIN);        // read analog signal from voltage sesnor
-        //V= ((Vpin/1024)*3.3); // -(2.37-2.292);      // callibration
-        //Vout = (478.947*V)- 1203.376;         // Firouzan's equations
-        V = (Vpin/1024)*3.3;
-        Vout = abs(48*V);
-        Varray[i] = Vout;                     // store all voltage values in array 
+        V = (Vpin/1024)*3.3;                  // Callibration
+        Vout = abs(48*V);                     // Firouzan's equation
+       
+        Ir = Iout* Iout;                      // Computing Irms  - sum(Isample^2)
+        Irm = Irm + Ir;          
 
-        Ir[i] = Iarray[i]*Iarray[i];          // Computing Irms  - sum(Isample^2)
-        Irm += Ir[i];                
+        Vr = Vout * Vout;                     // Computing Vrms - sum(Vsample^2)
+        Vrm = Vrm + Vr; 
 
-        Vr[i] = Varray[i]*Varray[i];          // Computing Vrms - sum(Vsample^2)
-        Vrm += Vr[i];   
-
-        P[i] = Varray[i] * Iarray[i];         // Computing real power - sum(V*I)
-        Power += P[i];
+        P = Iout * Vout;                      // Computing real power - sum(V*I)
+        Power = Power + P;
     
         i ++;                                 // counts how many times the while loop executes - the size of the arrays
-        }
+       // }
     
       if(currentMillis - previousMillis > minute) {
         previousMillis = currentMillis;
@@ -171,7 +162,7 @@ void loop() {
 
         Vrm = 0.00;                          // reset sums after minute
         Irm = 0.00;
-        Power = 0.0
+        Power = 0.0;
       }
     break;
     }

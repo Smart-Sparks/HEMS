@@ -7,8 +7,7 @@
 int i = 0;                              // begin global initializations
 int k = 0;
 int j = 0;
-
-float Tarray[MAXI];                     
+                  
 float Taverages[MAXK];
 float TavTimeArray[MAXK];
 
@@ -77,9 +76,8 @@ void loop() {
       Tpin= analogRead(TEMPPIN);             // Read temp value 
       T= (Tpin/1024)*3.3;                    // Callibration
       Tout = (T-0.5)*100;                    // Firouzan's equation
-      Tarray[i] = Tout;                      // array of temperature value
-
-      Tsum += Tarray[i];                     // sum of temp values
+     
+      Tsum = Tsum + Tout;                     // sum of temp values
 
       i++;                                   // number of temp values
 
