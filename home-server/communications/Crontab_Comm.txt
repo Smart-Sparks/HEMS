@@ -1,0 +1,17 @@
+# connect to sd1 (temp) at the 0th minute of every hour, collect data, save data in txt file, disconnect
+# includes: connectsd1.sh and disconnect.sh
+# sends data to: SmartDevice1.txt
+
+0 * * * * bash sd1.sh
+
+# connect to sd2 (plug) at the 20th minute of every hour, collect data, save data in txt file, disconnect
+# includes: connectsd2.sh and disconnect.sh
+# sends data to: SmartDevice2.txt
+
+20 * * * * bash sd2.sh
+
+# connect to sd3 (temp) at the 40th minute of every hour, collect data, save data in txt file, disconnect 
+# includes: connectsd3.sh and disconnect.sh
+# sends data to: SmartDevice3.txt
+
+40 * * * * bash sd3.sh
