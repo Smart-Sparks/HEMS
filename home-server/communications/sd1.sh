@@ -6,6 +6,6 @@ echo 1 $(date '+%Y-%m-%d %H:%M:%S') > SmartDevice1.txt
 sudo echo a >> /dev/rfcomm0 2>&1
 sleep 1
 sudo cat /dev/rfcomm0 >> SmartDevice1.txt 2>&1
-sleep 15
+#sleep 15
 bash disconnect.sh 
 echo Finished sd1.sh
