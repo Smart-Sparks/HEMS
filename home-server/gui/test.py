@@ -16,5 +16,6 @@ cur = conn.cursor()
 data = pd.read_sql_query("SELECT * FROM devices;", conn)
 
 print(data)
-
+print(data["id"][0])
+print(data["plug"][0])
 conn.close()

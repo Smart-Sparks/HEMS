@@ -11,6 +11,7 @@ import mariadb
 import sys
 import devicepanel as dp
 import pandas as pd
+## END IMPORTS
 
 ##########
 #FUNCTIONS
@@ -50,10 +51,18 @@ class MainPanel(tk.Frame):
         self.deviceList.insert()
         self.deviceList.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
     def pullDeviceData(self):
-        # open connection with mariadb
+        ##pulls the device data from the database and populates the deviceList with these objects
+        ##open connection with mariadb
         conn = connectMDB() 
-        device_data = pd.read_sql_query("SELECT * FROM devices;", conn)
-        #TODO: FINISH PULLDEVICEDATA. Will need to  
+        device_info = pd.read_sql_query("SELECT * FROM devices;", conn)
+        if device_info["plug"]:
+            recorded_data = pd.read_sql_query("SELECT * FROM energy;", conn)
+        else:
+            recorded_data = pd.read_sql_query("SELECT * FROM temperature;", conn)
+            new_device = dp.Device(device_info, recorded_data)
+            
+        conn.close()
+        ##TODO: FINISH PULLDEVICEDATA/  
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
