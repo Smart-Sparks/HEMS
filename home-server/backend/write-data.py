@@ -1,5 +1,5 @@
 # William Plucknett
-# This file should be called as python3 write-data.py DATAFILENAME {TEMPERATURE/ENERGY}
+# This file should be called as python3 write-data.py DATAFILENAME
 import mariadb
 import pandas as pd
 import calculations as calc
@@ -11,10 +11,10 @@ import datetime as dt
 #########
 
 # check command line arguments
-if len(sys.argv) != 3:
+if len(sys.argv) != 2:
     print(f"Improper usage of this script.")
-    print(f"Proper usage: python3 {str(sys.argv[0])} DATAFILE TYPE")
-    print("Where DATAFILE is the name of the datafile and TYPE is whether it is temperature or energy data.")
+    print(f"Proper usage: python3 {str(sys.argv[0])} DATAFILE")
+    print("Where DATAFILE is the name of the datafile.")
     sys.exit(1)
 
 datafile = str(sys.argv[1])
@@ -40,12 +40,22 @@ time_updated = preamble[1].replace('"', '') # time the device uploaded data to t
 num_rows = int(antepreamble[0]) # number of rows of data
 Tx_millis = int(antepreamble[1]) # time the arduino plug/temp sensor uploaded data (in millis() function format)
 
-
+####################################
+#DETERMINE IF ENERGY OR TEMPERATURE#
+####################################
+#TODO: more robust methodology would be prefered
+df = pd.read_csv (datafile, header=None, skiprows=[0,1])
+if df.num_columns == 6:
+    devicetype == "ENERGY"
+else if df.num_columns == 2:
+    devicetype == "TEMPERATURE"
+else:
+    devicetype == "ERROR"
 
 ##################
 # IF ENERGY FILE #
 ##################
-if(str(sys.argv[2]) == "ENERGY"):
+if(devicetype == "ENERGY"):
     df = pd.read_csv (datafile, header=None, skiprows=[0,1], names=['time','power','pf','rms current'])
     print(df)
 

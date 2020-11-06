@@ -78,7 +78,7 @@ class MainPanel(tk.Frame):
 
     def createWidgets(self):
         self.deviceList = DeviceList(master=self, selectmode="SINGLE", relief=tk.SUNKEN) 
-        self.buttonpanel = tk.Frame(self)
+        self.buttonpanel = tk.Frame(self, height=2)
         self.pullDeviceData() ##populate the deviceList
         #self.dataPanel = dp.DevicePanel(self)
         self.viewButton = tk.Button(self.buttonpanel, text="View", command=self.viewSelected, relief=tk.RAISED)
@@ -91,9 +91,11 @@ class MainPanel(tk.Frame):
         #self.dataPanel.grid(row=0, column=1, rowspan=3, columnspan=2, sticky="NE")
         #self.viewButton.grid(row=3, column=0, sticky="SW")
         self.deviceList.pack(side=tk.TOP, expand=True, fill=tk.BOTH)
-        self.buttonpanel.pack(side=tk.BOTTOM, expand=True, fill=tk.BOTH)
-        self.viewButton.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
-        self.refreshButton.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
+        self.buttonpanel.pack(side=tk.BOTTOM, expand=False, fill=tk.X)
+        #self.viewButton.pack(side=tk.LEFT, expand=False, fill=tk.X)
+        #self.refreshButton.pack(side=tk.RIGHT, expand=False, fill=tk.X)
+        self.viewButton.grid(row=0, column=0)
+        self.refreshButton.grid(row=0, column=1)
         return
 
 class App(tk.Tk):
