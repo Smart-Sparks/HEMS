@@ -13,3 +13,4 @@
 echo Initializing the mariadb database...
 sudo mariadb --verbose < init.sql
 echo Complete!
+#Start up crontab
