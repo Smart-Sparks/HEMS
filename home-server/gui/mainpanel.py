@@ -35,34 +35,58 @@ def connectMDB():
 
 #DeviceList expands the tk.Listbox object to handle features of the devices
 class DeviceList(tk.Listbox):
+
     def __init__(self, master=None, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
-        self.data = data
+        self.data = []
+
     def insert(self, index, *elements):
-        super().insert(index, *elements)
+        #super().insert(index, *elements)
         for elem in elements:
-            self.data[elem.getID()] = elem
+            self.data.append(elem)
+            super().insert(index, f"{elem.getID()}: {elem.getName()} {elem.getType()}")
              
+
+
 class MainPanel(tk.Frame):
+
     def __init__(self, master=None):        
         super().__init__(master)
-        self.master.title("HEMS")
-        self.deviceList = DeviceList(master=self, selectmode="SINGLE") 
-        self.deviceList.insert()
-        self.deviceList.pack(side=tk.LEFT, expand=True, fill=tk.BOTH)
+        self.configureGUI()
+        self.createWidgets()
+
     def pullDeviceData(self):
         ##pulls the device data from the database and populates the deviceList with these objects
         ##open connection with mariadb
         conn = connectMDB() 
-        device_info = pd.read_sql_query("SELECT * FROM devices;", conn)
-        if device_info["plug"]:
-            recorded_data = pd.read_sql_query("SELECT * FROM energy;", conn)
-        else:
-            recorded_data = pd.read_sql_query("SELECT * FROM temperature;", conn)
-            new_device = dp.Device(device_info, recorded_data)
-            
+        devices_table = pd.read_sql_query("SELECT * FROM devices;", conn)
+        for index, row in devices_table.iterrows():  
+            if row["plug"]:
+                recorded_data = pd.read_sql_query("SELECT * FROM energy;", conn)
+            else:
+                recorded_data = pd.read_sql_query("SELECT * FROM temperature;", conn)
+            new_device = dp.Device(row, recorded_data)
+            self.deviceList.insert(tk.END, new_device)
         conn.close()
         ##TODO: FINISH PULLDEVICEDATA/  
+
+    def createWidgets(self):
+        self.window = tk.PanedWindow(self, orient=tk.HORIZONTAL)
+        self.window.pack(fill=tk.BOTH, expand=True)
+        self.deviceList = DeviceList(master=self, selectmode="SINGLE") 
+        self.pullDeviceData() ##populate the deviceList
+        #self.deviceList.pack(side=tk.LEFT, expand=True, fill='y')
+        self.dataPanel = dp.DevicePanel(self)
+        #self.dataPanel.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
+        self.window.add(self.deviceList)
+        self.window.add(self.dataPanel)
+        return
+
+    def configureGUI(self):
+        self.master.title("HEMS")
+        return
+
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()

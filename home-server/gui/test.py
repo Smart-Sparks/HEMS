@@ -15,7 +15,7 @@ cur = conn.cursor()
 
 data = pd.read_sql_query("SELECT * FROM devices;", conn)
 
-print(data)
-print(data["id"][0])
-print(data["plug"][0])
+for index, row in data.iterrows():
+    print(row["plug"])
+
 conn.close()
