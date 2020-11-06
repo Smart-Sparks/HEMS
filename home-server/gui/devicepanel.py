@@ -19,7 +19,7 @@ def connectMDB():
         sys.exit(1)
     return conn
 
-class Device():#Todo: open a connection to mariadb via pandas and import the data here
+class Device():
 
     def __init__(self, device_info, recorded_data):
         self.setDeviceInfo(device_info) 
@@ -74,6 +74,17 @@ class Device():#Todo: open a connection to mariadb via pandas and import the dat
         conn.commit()
         conn.close()
         print(f"toggling state for device {self.getID()}")
+        return
+
+    def changeName(self, new_name):
+        # update in database
+        conn = f.connectMDB()
+        curr = conn.cursor()
+        curr.execute(f"UPDATE devices SET name = new_name WHERE id={self.getID()}")
+        conn.commit()
+        conn.close()
+        print(f"changed name for device {self.getID()} from {self.name} to {new_name}")
+        self.name = new_name
         return
 
 class DevicePanel(tk.Frame):
