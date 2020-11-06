@@ -9,3 +9,4 @@ sudo cat /dev/rfcomm0 >> SmartDevice$1.txt 2>&1
 sleep 15
 bash disconnect.sh 
 
+sudo python3 ../backend/write-data.py SmartDevice$1.txt
