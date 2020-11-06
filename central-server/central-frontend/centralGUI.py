@@ -115,52 +115,6 @@ class CentralGUI(tk.Frame):
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
 
-    # Creates and embeds a figure displaying data for specific home server
-    def EmbedHomeDataChart(self, master, home, numpts=5):
-        power = home.GetPower()
-        irms = home.GetIRMS()
-        energy = home.GetEnergy()
-        powerfactor = home.GetPowerFactor()
-        data_amount = home.GetNumDataPts()
-
-        if numpts > 0 and numpts <= data_amount:
-            fig = Figure(figsize=(5, 4), dpi=100)
-            t = range(numpts)
-            # Power
-            ax = fig.add_subplot(221)
-            ax.plot(t, power[data_amount-numpts:], 'r')
-            # ax.axes.yaxis.set_ticks([])
-            ax.axes.set_title("Power")
-            # Power Factor
-            ax = fig.add_subplot(222)
-            ax.plot(t, powerfactor[data_amount-numpts:], 'y')
-            # ax.axes.yaxis.set_ticks([])
-            ax.axes.set_title("Power Factor")
-            # Energy
-            ax = fig.add_subplot(223)
-            ax.plot(t, energy[data_amount-numpts:], 'b')
-            # ax.axes.yaxis.set_ticks([])
-            ax.axes.set_title("Energy")
-            # IRMS
-            ax = fig.add_subplot(224)
-            ax.plot(t, irms[data_amount-numpts:], 'k')
-            # ax.axes.yaxis.set_ticks([])
-            ax.axes.set_title("IRMS")
-
-            canvas = FigureCanvasTkAgg(fig, master=master)  # A tk.DrawingArea.
-            canvas.draw()
-            canvas.get_tk_widget().pack(side=tk.RIGHT, fill=tk.BOTH, expand=1)
-            return canvas.get_tk_widget()
-        return None
-
-
-    def ExportHomeData(self, e=None):
-        # Get tab name
-        id = self.pages.tab(self.pages.select(), "text")
-        home = self.homeServerListbox.getByID(id)
-        home.GetData().to_csv(self.output_csv)
-        print(home.GetData())
-
 
 class App(tk.Tk):
     def __init__(self):
