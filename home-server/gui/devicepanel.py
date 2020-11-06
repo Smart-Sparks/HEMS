@@ -4,26 +4,15 @@ from tkinter import ttk
 import mariadb
 import subprocess
 import pandas as pd
-
+import pandastable as pt
 import functions as f
 
-#connectMDB returns the connection
-#maybe should move this to a class that closes the connection upon the destruction occurring?
-def connectMDB():
-    try: 
-        conn = mariadb.connect(user='root', password='', host='localhost', database='hems')
-        conn.autocommit = False
-        print("Successfully connected to the database.")
-    except mariadb.Error as e:
-        print(f"Error connecting to MariaDB Platform: {e}")
-        sys.exit(1)
-    return conn
 
 class Device():
 
-    def __init__(self, device_info, recorded_data):
-        self.setDeviceInfo(device_info) 
-        self.data = recorded_data
+    def __init__(self, info=None, data=None):
+        self.setDeviceInfo(info) 
+        self.data = data
         #self.id set in setDeviceInfo
         #self.name set in setDeviceInfo >> setName
         #self.isPlug set in setDeviceInfo
@@ -80,12 +69,61 @@ class Device():
         # update in database
         conn = f.connectMDB()
         curr = conn.cursor()
-        curr.execute(f"UPDATE devices SET name = new_name WHERE id={self.getID()}")
+        curr.execute(f'UPDATE devices SET name = "{new_name}" WHERE id={self.getID()}')
         conn.commit()
         conn.close()
         print(f"changed name for device {self.getID()} from {self.name} to {new_name}")
         self.name = new_name
         return
+
+    def getData(self):
+        return self.data
+
+
+
+class DeviceTable(pt.Table):
+    
+    def __init__(self, master=None, data=None):
+        super().__init__(master, dataframe=data)
+         
+
+class DeviceInfoFrame(tk.Frame):
+    
+    def __init__(self, master=None, device=None):
+        super().__init__(master)
+        self.device = device
+        self.createWidgets()
+        self.configureGUI()
+        return
+
+    def getInput(self):
+        return self.nameBox.get("1.0", tk.END)
+
+    def changeName(self):
+        text = self.getInput().rstrip() # remove trailing whitespace
+        if(text):
+            if text.isalnum():
+                self.device.changeName(text) 
+            else:
+                print("changeName: alphanumeric only!")
+        else:
+            pass
+        return
+
+    def createWidgets(self):
+        self.toggleButton = tk.Button(self, text="Toggle Power", command=self.master.togglePower, relief=tk.RAISED)
+        self.changeNameButton = tk.Button(self, text="Change Device Name", command=self.changeName, relief=tk.RAISED)
+        self.nameBox = tk.Text(self, height=1) #TODO: name changing text box 
+        return
+
+    def configureGUI(self):
+        self.toggleButton.grid(row=0, column=3, sticky="E")
+        self.changeNameButton.grid(row=0, column=2, sticky="E")
+        self.nameBox.grid(row=0, column=1, sticky="E")
+        return
+
+
+
 
 class DevicePanel(tk.Frame):
 
@@ -102,9 +140,10 @@ class DevicePanel(tk.Frame):
             elif self.device.getState(): # currently off, turn on
                 subprocess.run(["../communications/relayb.sh"])
             subprocess.run(["../communications/disconnect.sh"])
+            self.device.toggleState() # update in representations
         except:
             print("Error trying to toggle power for the device.")
-        self.device.toggleState() # FIXME: move into try block
+        #self.device.toggleState() # test it out here
         return
 
     # setDevice: put a new device in
@@ -114,11 +153,31 @@ class DevicePanel(tk.Frame):
         return
 
     def createWidgets(self):
-        self.toggleButton = tk.Button(self, text="Toggle Power", command=self.togglePower)
-        #self.dataTbl = TABLE(self, data)
+        self.headerPanel = DeviceInfoFrame(self, self.device) #FIXME
+        self.TblFrame = tk.Frame(self)
+        self.dataTbl = DeviceTable(self.TblFrame, self.device.getData()) #self.dataTbl = TABLE(self, data)
         #self.graph = GRAPH(self, data)
         return
     
     def configureGUI(self):
-        self.toggleButton.grid(row=0, column=0, columnspan=5)
+        #self.toggleButton.grid(row=0, column=0, columnspan=5)
+        #self.dataTbl.grid(row=6, column=0, columnspan=5)
+        #self.dataTbl.show()
+        #self.toggleButton.pack(side=tk.RIGHT)
+        self.headerPanel.pack(side=tk.TOP)
+        self.TblFrame.pack(side=tk.BOTTOM)
+        self.dataTbl.show()
+        self.master.title(f"ID {self.device.getID()}: {self.device.getName()} {self.device.getType()}")
         return
+
+
+
+class DeviceWindow(tk.Toplevel):
+    
+    def __init__(self, master=None, device=None): 
+        super().__init__(master)
+        self.createWidgets(selected_device=device)
+    
+    def createWidgets(self, selected_device):
+        self.panel = DevicePanel(self, selected_device)
+        self.panel.pack(expand=True, fill=tk.BOTH)  
