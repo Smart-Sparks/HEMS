@@ -57,8 +57,8 @@ if(str(sys.argv[2]) == "ENERGY"):
 
 # write to mariadb
     try: 
-        cur.execute("REPLACE INTO devices (id, last_update, plug) VALUES (?, ?, ?)",
-                (device_id, time_updated, True))
+        cur.execute("REPLACE INTO devices (id, last_update, plug, status) VALUES (?, ?, ?, ?)",
+                (device_id, time_updated, True, True))
     except mariadb.Error as e:
         print(f"Error: {e}")
         sys.exit(2)
@@ -82,8 +82,8 @@ elif(str(sys.argv[2] == "TEMPERATURE")):
     df['time'] = [str(time_updated_DT - dt.timedelta(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
 # write to mariadb
     try:
-        cur.execute("REPLACE INTO devices (id, last_update, plug) VALUES (?, ?, ?)",
-                (device_id, time_updated, False))
+        cur.execute("REPLACE INTO devices (id, last_update, plug, status) VALUES (?, ?, ?)",
+                (device_id, time_updated, False, True))
     except mariadb.Error as e:
         print(f"Error: {e}")
         sys.exit(2)
