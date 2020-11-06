@@ -52,8 +52,8 @@ class MainPanel(tk.Frame):
 
     def __init__(self, master=None):        
         super().__init__(master)
-        self.configureGUI()
         self.createWidgets()
+        self.configureGUI()
 
     def pullDeviceData(self):
         ##pulls the device data from the database and populates the deviceList with these objects
@@ -68,24 +68,27 @@ class MainPanel(tk.Frame):
             new_device = dp.Device(row, recorded_data)
             self.deviceList.insert(tk.END, new_device)
         conn.close()
-        ##TODO: FINISH PULLDEVICEDATA/  
+        return
 
     def createWidgets(self):
-        self.window = tk.PanedWindow(self, orient=tk.HORIZONTAL)
-        self.window.pack(fill=tk.BOTH, expand=True)
         self.deviceList = DeviceList(master=self, selectmode="SINGLE") 
         self.pullDeviceData() ##populate the deviceList
-        #self.deviceList.pack(side=tk.LEFT, expand=True, fill='y')
         self.dataPanel = dp.DevicePanel(self)
-        #self.dataPanel.pack(side=tk.RIGHT, expand=True, fill=tk.BOTH)
-        self.window.add(self.deviceList)
-        self.window.add(self.dataPanel)
+        self.viewButton = tk.Button(self, text="View", command=self.viewSelected)
         return
 
     def configureGUI(self):
         self.master.title("HEMS")
+        self.deviceList.grid(row=0, column=0, rowspan=2)
+        self.dataPanel.grid(row=0, column=1, rowspan=3, columnspan=2)
+        self.viewButton.grid(row=3, column=0)
         return
 
+    ## viewSelected: tell the device panel to show data relevant to the selected device
+    def viewSelected(self):
+        selection = self.deviceList.curselection()
+        print(selection)
+        return
 
 class App(tk.Tk):
     def __init__(self):

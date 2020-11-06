@@ -53,6 +53,7 @@ class DevicePanel(tk.Frame):
         super().__init__(master)
         self.device = device
         self.createWidgets()
+        self.configureGUI()
 
     def togglePower(self): # need to do feedback and error checking on this one
         subprocess.run(["../communications/connectsd.sh", self.device.id])
@@ -63,8 +64,18 @@ class DevicePanel(tk.Frame):
         subprocess.run(["../communications/disconnect.sh"])
         return
 
+    # setDevice: put a new device in
+    def setDevice(self, device):
+        self.device = device
+        # might have to call something to redraw dataTbl and graph
+        return
+
     def createWidgets(self):
         self.toggleButton = tk.Button(self, text="Toggle Power", command=self.togglePower)
         #self.dataTbl = TABLE(self, data)
         #self.graph = GRAPH(self, data)
-
+        return
+    
+    def configureGUI(self):
+        self.toggleButton.grid(row=0, column=0, columnspan=5)
+        return
