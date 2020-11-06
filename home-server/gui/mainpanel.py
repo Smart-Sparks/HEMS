@@ -11,23 +11,9 @@ import mariadb
 import sys
 import devicepanel as dp
 import pandas as pd
+import functions as f
 ## END IMPORTS
 
-##########
-#FUNCTIONS
-##########
-
-#connectMDB returns the connection
-#maybe should move this to a class that closes the connection upon the destruction occurring?
-def connectMDB():
-    try: 
-        conn = mariadb.connect(user='root', password='', host='localhost', database='hems')
-        conn.autocommit = False
-        print("Successfully connected to the database.")
-    except mariadb.Error as e:
-        print(f"Error connecting to MariaDB Platform: {e}")
-        sys.exit(1)
-    return conn
 
 ########
 #CLASSES
@@ -45,7 +31,10 @@ class DeviceList(tk.Listbox):
         for elem in elements:
             self.data.append(elem)
             super().insert(index, f"{elem.getID()}: {elem.getName()} {elem.getType()}")
-             
+    
+    # return the device at the index in data
+    def getDevice(self, idx):
+        return self.data[idx]
 
 
 class MainPanel(tk.Frame):
@@ -58,7 +47,7 @@ class MainPanel(tk.Frame):
     def pullDeviceData(self):
         ##pulls the device data from the database and populates the deviceList with these objects
         ##open connection with mariadb
-        conn = connectMDB() 
+        conn = f.connectMDB() 
         devices_table = pd.read_sql_query("SELECT * FROM devices;", conn)
         for index, row in devices_table.iterrows():  
             if row["plug"]:
@@ -79,15 +68,17 @@ class MainPanel(tk.Frame):
 
     def configureGUI(self):
         self.master.title("HEMS")
-        self.deviceList.grid(row=0, column=0, rowspan=2)
-        self.dataPanel.grid(row=0, column=1, rowspan=3, columnspan=2)
-        self.viewButton.grid(row=3, column=0)
+        self.deviceList.grid(row=0, column=0, rowspan=2, sticky="NW")
+        self.dataPanel.grid(row=0, column=1, rowspan=3, columnspan=2, sticky="NE")
+        self.viewButton.grid(row=3, column=0, sticky="SW")
         return
 
     ## viewSelected: tell the device panel to show data relevant to the selected device
     def viewSelected(self):
         selection = self.deviceList.curselection()
-        print(selection)
+        if(selection):
+            displayMe = self.deviceList.getDevice(selection[0])
+            self.dataPanel.setDevice(displayMe)
         return
 
 class App(tk.Tk):
