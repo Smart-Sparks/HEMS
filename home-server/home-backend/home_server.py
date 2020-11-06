@@ -7,6 +7,7 @@ from time import sleep
 import configparser
 import pathlib
 from os.path import join
+import subprocess
 # END IMPORTS
 
 # START METHODS
@@ -25,9 +26,10 @@ def delete_local_csv(f):
     os.remove(f)
 
 # Loops and checks folder every period, uploading csv files in the folder and deleting when successful
-def file_check_loop(in_folder, folder_id):
+def file_check_loop(in_folder, folder_id): 
+    subprocess.run(['../backend/read-to-tsv.sh'])
     data_src_dir = in_folder
-    wait_period = 2
+    wait_period = 10800 # in minutes; 10800 is 6 hours
     # Should loop forever
     while (True):
         files = os.listdir(data_src_dir)
