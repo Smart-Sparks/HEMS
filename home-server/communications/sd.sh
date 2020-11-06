@@ -7,6 +7,8 @@ sudo echo a >> /dev/rfcomm0 2>&1
 sleep 1
 sudo cat /dev/rfcomm0 >> SmartDevice$1.txt 2>&1
 sleep 15
+echo Disconnecting...
 bash disconnect.sh 
-
+echo Writing to database...
 sudo python3 ../backend/write-data.py SmartDevice$1.txt
+echo Finished
