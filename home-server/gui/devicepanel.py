@@ -79,7 +79,12 @@ class Device():
     def getData(self):
         return self.data
 
-
+    def exportCSV(self):
+        try:
+            self.data.to_csv(path=f"{self.devicetype}{self.name}.csv")
+        except:
+            print("Error occurred trying to export a device to CSV.")
+        return
 
 class DeviceTable(pt.Table):
     
@@ -111,12 +116,14 @@ class DeviceInfoFrame(tk.Frame):
         return
 
     def createWidgets(self):
+        self.changeNameLabel = tk.Label(self, text="New Name:")
         self.toggleButton = tk.Button(self, text="Toggle Power", command=self.master.togglePower, relief=tk.RAISED)
         self.changeNameButton = tk.Button(self, text="Change Device Name", command=self.changeName, relief=tk.RAISED)
         self.nameBox = tk.Text(self, height=1) #TODO: name changing text box 
         return
 
     def configureGUI(self):
+        self.changeNameLabel.grid(row=0, column=0, sticky="E")
         self.toggleButton.grid(row=0, column=3, sticky="E")
         self.changeNameButton.grid(row=0, column=2, sticky="E")
         self.nameBox.grid(row=0, column=1, sticky="E")
