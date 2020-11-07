@@ -47,7 +47,7 @@ Tx_millis = int(antepreamble[1]) # time the arduino plug/temp sensor uploaded da
 df = pd.read_csv (datafile, header=None, skiprows=[0,1])
 if df.num_columns == 6:
     devicetype == "ENERGY"
-else if df.num_columns == 2:
+elif df.num_columns == 2:
     devicetype == "TEMPERATURE"
 else:
     devicetype == "ERROR"
