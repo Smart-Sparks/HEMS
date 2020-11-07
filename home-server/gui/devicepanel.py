@@ -81,7 +81,7 @@ class Device():
 
     def exportCSV(self):
         try:
-            self.data.to_csv(path=f"{self.devicetype}{self.name}.csv")
+            self.data.to_csv(path=f"~/{self.devicetype}{self.name}.csv")
         except:
             print("Error occurred trying to export a device to CSV.")
         return
@@ -120,6 +120,7 @@ class DeviceInfoFrame(tk.Frame):
         self.toggleButton = tk.Button(self, text="Toggle Power", command=self.master.togglePower, relief=tk.RAISED)
         self.changeNameButton = tk.Button(self, text="Change Device Name", command=self.changeName, relief=tk.RAISED)
         self.nameBox = tk.Text(self, height=1) #TODO: name changing text box 
+        self.exportCSVButton = tk.Button(self, text="Export to CSV", command=self.device.exportCSV)
         return
 
     def configureGUI(self):
@@ -127,6 +128,7 @@ class DeviceInfoFrame(tk.Frame):
         self.toggleButton.grid(row=0, column=3, sticky="E")
         self.changeNameButton.grid(row=0, column=2, sticky="E")
         self.nameBox.grid(row=0, column=1, sticky="E")
+        self.exportCSVButton.grid(row=0, column=4, sticky="E")
         return
 
 
