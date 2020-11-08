@@ -148,10 +148,14 @@ class DevicePanel(tk.Frame):
         #try:
         pathtocomms = os.path.join(pathlib.Path(__file__).parent.absolute(), "..", "communications") 
         if self.device.getState(): # currently running, turn off
+            print("Turning off.")
+            print(["bash", os.path.join(pathtocomms, "relayc.sh")])
             subprocess.run(["bash", os.path.join(pathtocomms, "relayc.sh")])
-        elif self.device.getState(): # currently off, turn on
+        else: # currently off, turn on
+            print("Turning on.")
+            print(["bash", os.path.join(pathtocomms, "relayb.sh")])
             subprocess.run(["bash", os.path.join(pathtocomms, "relayb.sh")])
-        subprocess.run(["bash", os.path.join(pathtocomms, "disconnect.sh")])
+        #subprocess.run(["bash", os.path.join(pathtocomms, "disconnect.sh")])
         self.device.toggleState() # update in representations
         #except:
         #    print("Error trying to toggle power for the device.")
