@@ -80,10 +80,9 @@ class Device():
         return self.data
 
     def exportCSV(self):
-        try:
-            self.data.to_csv(path=f"~/{self.devicetype}{self.name}.csv")
-        except:
-            print("Error occurred trying to export a device to CSV.")
+        #FIXME
+        self.data.to_csv(f"~/{self.getType()}{self.name}.csv", index=False)
+        #print("Error occurred trying to export a device to CSV.")
         return
 
 class DeviceTable(pt.Table):

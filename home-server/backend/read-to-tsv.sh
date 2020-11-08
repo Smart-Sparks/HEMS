@@ -5,7 +5,7 @@
 
 # send to /homeBackend/input
 # datetime=`date +"%D%T" -R`
-newtime=`date +"%F %T"
+newtime=`date +"%F %T"`
 datetime=`date -R | tr -d :,./ | tr -d [:blank:]`
 fileaffix=${datetime:3:-5}
 PATHNAME=~/homeBackend/input/
