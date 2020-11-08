@@ -27,8 +27,8 @@ def delete_local_csv(f):
 
 # Loops and checks folder every period, uploading csv files in the folder and deleting when successful
 def file_check_loop(in_folder, folder_id): 
-    tsv_output_filepath = os.path.join(os.path.expanduser("~"), "/HEMS/home-server/backend/")
-    subprocess.run(["ls", tsv_output_filepath])
+    #tsv_output_filepath = os.path.join(os.path.expanduser("~"), "/HEMS/home-server/backend/read-to-tsv.sh")
+    #subprocess.run(["bash", tsv_output_filepath])
     data_src_dir = in_folder
     wait_period = 10800 # in minutes; 10800 is 6 hours
     # Should loop forever
