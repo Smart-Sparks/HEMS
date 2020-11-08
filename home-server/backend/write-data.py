@@ -77,7 +77,7 @@ if(devicetype == "ENERGY"):
         row = df.iloc[idx]
         cur.execute("INSERT INTO energy VALUES (?, ?, ?, ?, ?, ?)",
                 (device_id,
-                    row['time'], row['rms current'], row['pwr'], row['pf'], row['energy']) 
+                    row['time'], row['rms current'], row['power'], row['pf'], row['energy']) 
                 )
     conn.commit()
     conn.close()
