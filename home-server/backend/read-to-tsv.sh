@@ -12,7 +12,10 @@ PATHNAME=~/homeBackend/input/
 prevuploadfile=~/HEMS/home-server/backend/prevdatetime.txt
 prevdatevar=$(cat ${prevuploadfile})
 echo Writing .tsv files to ${PATHNAME} with affix ${fileaffix}.
-( echo "SELECT * FROM devices WHERE time > '${prevdatevar}'" | sudo mariadb -B hems ) > ${PATHNAME}devices${fileaffix}.tsv
+( echo "SELECT * FROM devices" | sudo mariadb -B hems ) > ${PATHNAME}devices${fileaffix}.tsv
+echo Wrote devices table.
 ( echo "SELECT * FROM energy WHERE time > '${prevdatevar}'" | sudo mariadb -B hems ) > ${PATHNAME}energy${fileaffix}.tsv
+echo Wrote energy table.
 ( echo "SELECT * FROM temperature WHERE time > '${prevdatevar}'" | sudo mariadb -B hems ) > ${PATHNAME}temperature${fileaffix}.tsv
-echo ${newtime} > ${preupload}
+echo Wrote temperature table.
+echo ${newtime} > ${preuploadfile}
