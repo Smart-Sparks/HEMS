@@ -3,4 +3,4 @@
 echo "Connecting to Device with ID $1"
 sed "$1q;d" ./mac-lookup.txt
 MAC=$(sed "$1q;d" ./mac-lookup.txt)
-sudo rfcomm connect hci1 $MAC 1 &
+sudo rfcomm connect hci0 $MAC 1 &

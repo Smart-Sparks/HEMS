@@ -12,11 +12,11 @@ import datetime as dt
 #########
 
 # check command line arguments
-if len(sys.argv) != 2:
-    print(f"Improper usage of this script.")
-    print(f"Proper usage: python3 {str(sys.argv[0])} DATAFILE")
-    print("Where DATAFILE is the name of the datafile.")
-    sys.exit(1)
+#if len(sys.argv) != 2:
+#    print(f"Improper usage of this script.")
+#    print(f"Proper usage: python3 {str(sys.argv[0])} DATAFILE")
+#    print("Where DATAFILE is the name of the datafile.")
+#    sys.exit(1)
 
 datafile = str(sys.argv[1])
 
@@ -48,7 +48,7 @@ Tx_millis = int(antepreamble[1]) # time the arduino plug/temp sensor uploaded da
 df = pd.read_csv (datafile, header=None, skiprows=[0,1])
 if len(df.columns) == 4:
     devicetype = "ENERGY"
-elif df.num_columns == 2:
+elif len(df.columns) == 2:
     devicetype = "TEMPERATURE"
 else:
     devicetype = "ERROR"
