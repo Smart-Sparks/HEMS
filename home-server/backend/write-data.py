@@ -85,15 +85,16 @@ if(devicetype == "ENERGY"):
 # IF TEMPERATURE FILE #
 #######################
 elif(devicetype == "TEMPERATURE"):
-    df = pd.read_csv (datafile, header=None, skiprows=[0], names=['time','temperature'])
+    df = pd.read_csv (datafile, header=None, skiprows=[0,1], names=['time','temperature'])
     print(df)
 
 # convert the time in millis into datetime type
     time_updated_DT = dt.datetime.strptime(time_updated, "%Y-%m-%d %H:%M:%S") # python datetime format
     df['time'] = [str(time_updated_DT - dt.timedelta(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
+
 # write to mariadb
     try:
-        cur.execute("REPLACE INTO devices (id, last_update, plug, status) VALUES (?, ?, ?)",
+        cur.execute("REPLACE INTO devices (id, last_update, plug, status) VALUES (?, ?, ?, ?)",
                 (device_id, time_updated, False, True))
     except mariadb.Error as e:
         print(f"Error: {e}")
