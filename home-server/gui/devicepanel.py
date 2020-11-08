@@ -7,6 +7,9 @@ import pandas as pd
 import pandastable as pt
 import functions as f
 
+import pathlib
+import os
+from os.path import join
 
 class Device():
 
@@ -81,7 +84,7 @@ class Device():
 
     def exportCSV(self):
         #FIXME
-        self.data.to_csv(f"~/{self.getType()}{self.name}.csv", index=False)
+        self.data.to_csv(f"~/{self.getType()} {self.name}.csv", index=False)
         #print("Error occurred trying to export a device to CSV.")
         return
 
@@ -142,15 +145,16 @@ class DevicePanel(tk.Frame):
         self.configureGUI()
 
     def togglePower(self): # need to do feedback and error checking on this one
-        try:
-            if self.device.getState(): # currently running, turn off
-                subprocess.run(["../communications/relayc.sh"])
-            elif self.device.getState(): # currently off, turn on
-                subprocess.run(["../communications/relayb.sh"])
-            subprocess.run(["../communications/disconnect.sh"])
-            self.device.toggleState() # update in representations
-        except:
-            print("Error trying to toggle power for the device.")
+        #try:
+        pathtocomms = os.path.join(pathlib.Path(__file__).parent.absolute(), "..", "communications") 
+        if self.device.getState(): # currently running, turn off
+            subprocess.run(["bash", os.path.join(pathtocomms, "relayc.sh")])
+        elif self.device.getState(): # currently off, turn on
+            subprocess.run(["bash", os.path.join(pathtocomms, "relayb.sh")])
+        subprocess.run(["bash", os.path.join(pathtocomms, "disconnect.sh")])
+        self.device.toggleState() # update in representations
+        #except:
+        #    print("Error trying to toggle power for the device.")
         #self.device.toggleState() # test it out here
         return
 
