@@ -1,4 +1,5 @@
 # William Plucknett
+# Fall 2020
 # This file should be called as python3 write-data.py DATAFILENAME
 import mariadb
 import pandas as pd
