@@ -1,4 +1,5 @@
 # William Plucknett
+# Fall 2020
 # This file should be called as python3 write-data.py DATAFILENAME
 import mariadb
 import pandas as pd
@@ -51,8 +52,7 @@ elif len(df.columns) == 2:
     devicetype = "TEMPERATURE"
 else:
     devicetype = "ERROR"
-print(len(df.columns))
-print(devicetype)
+
 ##################
 # IF ENERGY FILE #
 ##################
@@ -61,7 +61,7 @@ if(devicetype == "ENERGY"):
     print(df)
 
 # calculate energy per row
-    df['energy'] = [calc.energy(power) for power in zip(df['power'])]
+    df['energy'] = [calc.energy(power) for power in df['power']]
 # convert the time in millis into datetime type
     time_updated_DT = dt.datetime.strptime(time_updated, "%Y-%m-%d %H:%M:%S") # python datetime format
     df['time'] = [str(time_updated_DT - dt.timedelta(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
@@ -73,11 +73,11 @@ if(devicetype == "ENERGY"):
     except mariadb.Error as e:
         print(f"Error: {e}")
         sys.exit(2)
-    for idx in range(num_rows):
+    for idx in range(df.shape[0]):
         row = df.iloc[idx]
         cur.execute("INSERT INTO energy VALUES (?, ?, ?, ?, ?, ?)",
                 (device_id,
-                    row['time'], row['power'], row['pf'], row['rms current'], row['energy']) 
+                    row['time'], row['rms current'], row['power'], row['pf'], row['energy']) 
                 )
     conn.commit()
     conn.close()
@@ -85,7 +85,7 @@ if(devicetype == "ENERGY"):
 # IF TEMPERATURE FILE #
 #######################
 elif(devicetype == "TEMPERATURE"):
-    df = pd.read_csv (datafile, header=None, skiprows=[0,1], names=['time','temperature'])
+    df = pd.read_csv (datafile, header=None, skiprows=[0], names=['time','temperature'])
     print(df)
 
 # convert the time in millis into datetime type
@@ -98,7 +98,7 @@ elif(devicetype == "TEMPERATURE"):
     except mariadb.Error as e:
         print(f"Error: {e}")
         sys.exit(2)
-    for idx in range(num_rows):
+    for idx in range(df.shape[0]):
         row = df.iloc[idx]
         cur.execute("INSERT INTO temperature VALUES (?, ?, ?)",
                 (device_id,

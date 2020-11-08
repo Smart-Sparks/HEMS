@@ -16,4 +16,5 @@ sudo pip3 install pandastable
 echo Initializing the mariadb database...
 sudo mariadb --verbose < init.sql
 echo Complete!
-#Start up crontab
+#Initialize the last upload file
+date --date="@0" +"%F %T" > ~/HEMS/home-server/backend/prevdatetime.txt

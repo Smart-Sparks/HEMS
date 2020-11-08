@@ -16,3 +16,4 @@ sudo cat /dev/rfcomm0 >> ~/HEMS/home-server/communications/SmartDevice$1.txt 2>&
 #echo Writing to database...
 #sudo python3 ../backend/write-data.py SmartDevice$1.txt
 #echo Finished
+
