@@ -17,4 +17,4 @@ echo Initializing the mariadb database...
 sudo mariadb --verbose < init.sql
 echo Complete!
 #Initialize the last upload file
-timedate > previoustime
+date --date="@0" +"%F %T" > ~/HEMS/home-server/backend/prevdatetime.txt
