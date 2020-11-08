@@ -18,4 +18,4 @@ echo Wrote devices table.
 echo Wrote energy table.
 ( echo "SELECT * FROM temperature WHERE time > '${prevdatevar}'" | sudo mariadb -B hems ) > ${PATHNAME}temperature${fileaffix}.tsv
 echo Wrote temperature table.
-echo ${newtime} > ${preuploadfile}
+echo ${newtime} > ${prevuploadfile}
