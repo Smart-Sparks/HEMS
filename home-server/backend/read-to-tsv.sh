@@ -5,13 +5,14 @@
 
 # send to /homeBackend/input
 # datetime=`date +"%D%T" -R`
+newtime=`date +"%F %T"
 datetime=`date -R | tr -d :,./ | tr -d [:blank:]`
 fileaffix=${datetime:3:-5}
 PATHNAME=~/homeBackend/input/
-prevupload="prevdatetime.txt"
-read -r prevdatevar<${prevupload}
+prevuploadfile=~/HEMS/home-server/backend/prevdatetime.txt
+prevdatevar=$(cat ${prevuploadfile})
 echo Writing .tsv files to ${PATHNAME} with affix ${fileaffix}.
-( echo "SELECT * FROM devices WHERE time > '${prevupload}'" | sudo mariadb -B hems ) > ${PATHNAME}devices${fileaffix}.tsv
-( echo "SELECT * FROM energy WHERE time > '${prevupload}'" | sudo mariadb -B hems ) > ${PATHNAME}energy${fileaffix}.tsv
-( echo "SELECT * FROM temperature WHERE time > '${prevupload}'" | sudo mariadb -B hems ) > ${PATHNAME}temperature${fileaffix}.tsv
-echo ${datetime} > ${preupload}
+( echo "SELECT * FROM devices WHERE time > '${prevdatevar}'" | sudo mariadb -B hems ) > ${PATHNAME}devices${fileaffix}.tsv
+( echo "SELECT * FROM energy WHERE time > '${prevdatevar}'" | sudo mariadb -B hems ) > ${PATHNAME}energy${fileaffix}.tsv
+( echo "SELECT * FROM temperature WHERE time > '${prevdatevar}'" | sudo mariadb -B hems ) > ${PATHNAME}temperature${fileaffix}.tsv
+echo ${newtime} > ${preupload}

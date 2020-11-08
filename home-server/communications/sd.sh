@@ -10,5 +10,5 @@ sleep 15
 echo Disconnecting...
 bash disconnect.sh 
 echo Writing to database...
-sudo python3 ../backend/write-data.py SmartDevice$1.txt
+sudo python3 ~/HEMS/backend/write-data.py SmartDevice$1.txt
 echo Finished

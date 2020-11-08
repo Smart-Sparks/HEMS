@@ -45,12 +45,12 @@ Tx_millis = int(antepreamble[1]) # time the arduino plug/temp sensor uploaded da
 ####################################
 #TODO: more robust methodology would be prefered
 df = pd.read_csv (datafile, header=None, skiprows=[0,1])
-if df.num_columns == 6:
-    devicetype == "ENERGY"
-else if df.num_columns == 2:
-    devicetype == "TEMPERATURE"
+if len(df.columns) == 4:
+    devicetype = "ENERGY"
+elif df.num_columns == 2:
+    devicetype = "TEMPERATURE"
 else:
-    devicetype == "ERROR"
+    devicetype = "ERROR"
 
 ##################
 # IF ENERGY FILE #
@@ -60,7 +60,7 @@ if(devicetype == "ENERGY"):
     print(df)
 
 # calculate energy per row
-    df['energy'] = [calc.energy(power, pf) for power, pf in zip(df['power'],df['pf'])]
+    df['energy'] = [calc.energy(power) for power in df['power']]
 # convert the time in millis into datetime type
     time_updated_DT = dt.datetime.strptime(time_updated, "%Y-%m-%d %H:%M:%S") # python datetime format
     df['time'] = [str(time_updated_DT - dt.timedelta(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
@@ -72,18 +72,18 @@ if(devicetype == "ENERGY"):
     except mariadb.Error as e:
         print(f"Error: {e}")
         sys.exit(2)
-    for idx in range(num_rows):
+    for idx in range(df.shape[0]):
         row = df.iloc[idx]
         cur.execute("INSERT INTO energy VALUES (?, ?, ?, ?, ?, ?)",
                 (device_id,
-                    row['time'], row['power'], row['pf'], row['rms current'], row['energy']) 
+                    row['time'], row['rms current'], row['pwr'], row['pf'], row['energy']) 
                 )
     conn.commit()
     conn.close()
 #######################
 # IF TEMPERATURE FILE #
 #######################
-elif(str(sys.argv[2] == "TEMPERATURE")):
+elif(devicetype == "TEMPERATURE"):
     df = pd.read_csv (datafile, header=None, skiprows=[0], names=['time','temperature'])
     print(df)
 
@@ -97,7 +97,7 @@ elif(str(sys.argv[2] == "TEMPERATURE")):
     except mariadb.Error as e:
         print(f"Error: {e}")
         sys.exit(2)
-    for idx in range(num_rows):
+    for idx in range(df.shape[0]):
         row = df.iloc[idx]
         cur.execute("INSERT INTO temperature VALUES (?, ?, ?)",
                 (device_id,
