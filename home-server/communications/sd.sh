@@ -9,8 +9,8 @@ sudo cat /dev/rfcomm0 >> SmartDevice$1.txt 2>&1
 #sudo tee SmartDevice$1.txt < /dev/rfcomm0
 #cp /dev/rfcomm0 SmartDevice$1.txt 
 #sleep 15
-echo Disconnecting...
-bash disconnect.sh 
-echo Writing to database...
-sudo python3 ../backend/write-data.py SmartDevice$1.txt
-echo Finished
+#echo Disconnecting...
+#bash disconnect.sh 
+#echo Writing to database...
+#sudo python3 ../backend/write-data.py SmartDevice$1.txt
+#echo Finished

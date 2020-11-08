@@ -11,11 +11,11 @@ import datetime as dt
 #########
 
 # check command line arguments
-if len(sys.argv) != 2:
-    print(f"Improper usage of this script.")
-    print(f"Proper usage: python3 {str(sys.argv[0])} DATAFILE")
-    print("Where DATAFILE is the name of the datafile.")
-    sys.exit(1)
+#if len(sys.argv) != 2:
+#    print(f"Improper usage of this script.")
+#    print(f"Proper usage: python3 {str(sys.argv[0])} DATAFILE")
+#    print("Where DATAFILE is the name of the datafile.")
+#    sys.exit(1)
 
 datafile = str(sys.argv[1])
 
@@ -45,13 +45,14 @@ Tx_millis = int(antepreamble[1]) # time the arduino plug/temp sensor uploaded da
 ####################################
 #TODO: more robust methodology would be prefered
 df = pd.read_csv (datafile, header=None, skiprows=[0,1])
-if df.num_columns == 6:
-    devicetype == "ENERGY"
-elif df.num_columns == 2:
-    devicetype == "TEMPERATURE"
+if len(df.columns) == 4:
+    devicetype = "ENERGY"
+elif len(df.columns) == 2:
+    devicetype = "TEMPERATURE"
 else:
-    devicetype == "ERROR"
-
+    devicetype = "ERROR"
+print(len(df.columns))
+print(devicetype)
 ##################
 # IF ENERGY FILE #
 ##################
@@ -60,7 +61,7 @@ if(devicetype == "ENERGY"):
     print(df)
 
 # calculate energy per row
-    df['energy'] = [calc.energy(power, pf) for power, pf in zip(df['power'],df['pf'])]
+    df['energy'] = [calc.energy(power) for power in zip(df['power'])]
 # convert the time in millis into datetime type
     time_updated_DT = dt.datetime.strptime(time_updated, "%Y-%m-%d %H:%M:%S") # python datetime format
     df['time'] = [str(time_updated_DT - dt.timedelta(milliseconds=(Tx_millis - millis))) for millis in df['time']] # milliseconds=(Tx_millis - millis) finds how long ago the data was measured in ms
@@ -83,8 +84,8 @@ if(devicetype == "ENERGY"):
 #######################
 # IF TEMPERATURE FILE #
 #######################
-elif(str(sys.argv[2] == "TEMPERATURE")):
-    df = pd.read_csv (datafile, header=None, skiprows=[0], names=['time','temperature'])
+elif(devicetype == "TEMPERATURE"):
+    df = pd.read_csv (datafile, header=None, skiprows=[0,1], names=['time','temperature'])
     print(df)
 
 # convert the time in millis into datetime type
