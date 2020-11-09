@@ -57,7 +57,7 @@ else:
 # IF ENERGY FILE #
 ##################
 if(devicetype == "ENERGY"):
-    df = pd.read_csv (datafile, header=None, skiprows=[0,1], names=['time','power','pf','rms current'])
+    df = pd.read_csv (datafile, header=None, skiprows=[0,1], names=['time','power','pf','rms current']).dropna()
     print(df)
 
 # calculate energy per row
@@ -85,7 +85,7 @@ if(devicetype == "ENERGY"):
 # IF TEMPERATURE FILE #
 #######################
 elif(devicetype == "TEMPERATURE"):
-    df = pd.read_csv (datafile, header=None, skiprows=[0,1], names=['time','temperature'])
+    df = pd.read_csv (datafile, header=None, skiprows=[0,1], names=['time','temperature']).dropna()
     print(df)
 
 # convert the time in millis into datetime type
