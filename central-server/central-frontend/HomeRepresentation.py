@@ -252,7 +252,7 @@ class HomeNotebookTab(tk.Frame):
             print("start:", start, ", end:", end)
             datasubset = data.loc[datamask]
             datasubset = datasubset.sort_values(by=['time'])
-            displaydata = self.AverageDataPerHour(datasubset)
+            displaydata = deepcopy(self.AverageDataPerHour(datasubset))
             self.chart = self.EmbedHomeDataChart(self, self.home, numpts=100, data=displaydata)
         except ValueError:
             pass
