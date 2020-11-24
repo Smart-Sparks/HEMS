@@ -266,6 +266,7 @@ class HomeNotebookTab(tk.Frame):
         sorteddata = sorteddata.sort_values(by=['time'])
         if not sorteddata.empty:
             # split into hour chunks
+            print(sorteddata)
             homeid = sorteddata.iloc[0]['homeid']
             deviceid = -1
             start = sorteddata.iloc[0]['time']
@@ -273,7 +274,7 @@ class HomeNotebookTab(tk.Frame):
             end = sorteddata.iloc[-1]['time']
             print(start, end)
 
-            while(curr + datetime.timedelta(hours=1) <= end):
+            while(curr <= end):
                 mask = (sorteddata['time'] >= curr) & (sorteddata['time'] <= curr + datetime.timedelta(hours=1))
                 hourdata = sorteddata.loc[mask]
                 if not hourdata.empty:
@@ -290,6 +291,16 @@ class HomeNotebookTab(tk.Frame):
                     # print(hourdata.mean(axis=0))
                     avgdata = avgdata.append(newrow, ignore_index=True)
                     # avgdata.loc[-1] = [homeid, deviceid, avgtime, avgirms, avgpwr, avgpf, avgenergy]
+                else:
+                    print("No data from ", curr, " to ", curr + datetime.timedelta(hours=1))
+                    newrow = {'homeid': homeid, 'deviceid': deviceid,
+                        'time': 0,
+                        'irms': 0,
+                        'pwr': 0,
+                        'pf': 0,
+                        'energy': 0}
+                    # print(hourdata.mean(axis=0))
+                    avgdata = avgdata.append(newrow, ignore_index=True)
                 curr = curr + datetime.timedelta(hours=1)
 
             print(avgdata)
